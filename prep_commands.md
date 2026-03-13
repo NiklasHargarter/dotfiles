@@ -4,8 +4,10 @@
 # ZSH
 download MesloLGS NF
 
+    chsh -s $(which zsh) && sudo chsh -s $(which zsh) root
+    
     stow zsh
-
+    
     .setup_zsh.sh
 
 # Neovim
