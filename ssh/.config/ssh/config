@@ -1,0 +1,11 @@
+# --- GitHub ---
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_github
+
+# --- Slifer ---
+Host slifer
+    HostName 193.175.188.174
+    User niklas
+    IdentityFile ~/.ssh/id_ed25519_slifer

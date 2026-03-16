@@ -1,8 +1,53 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH="$PATH:$HOME/.local/bin"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$ZDOTDIR/ohmyzsh"
+
+# For Servers (copies to the server using the SSH config alias)
+auth-server() {
+    local SERVICE=$1
+    if [[ -z "$SERVICE" ]]; then
+        echo "Usage: auth-server <service_name>"
+        return 1
+    fi
+
+    # Generate key if it doesn't exist
+    if [[ ! -f ~/.ssh/id_ed25519_$SERVICE ]]; then
+        ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE -N ""
+    fi
+
+    # Copy to server
+    ssh-copy-id -i ~/.ssh/id_ed25519_${SERVICE}.pub $SERVICE
+}
+
+# For UI Services (GitHub, GitLab, etc.)
+auth-ui() {
+    local SERVICE=$1
+    if [[ -z "$SERVICE" ]]; then
+        echo "Usage: auth-ui <service_name>"
+        return 1
+    fi
+
+    # Generate key if it doesn't exist
+    if [[ ! -f ~/.ssh/id_ed25519_$SERVICE ]]; then
+        ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE -N ""
+    fi
+
+    # Output the key and copy to clipboard (works on Mac and Linux)
+    if command -v pbcopy >/dev/null; then
+        cat ~/.ssh/id_ed25519_${SERVICE}.pub | pbcopy
+        echo "Key for $SERVICE copied to clipboard (macOS)."
+    elif command -v xclip >/dev/null; then
+        cat ~/.ssh/id_ed25519_${SERVICE}.pub | xclip -sel clip
+        echo "Key for $SERVICE copied to clipboard (Linux)."
+    else
+        echo "--- Public Key for $SERVICE ---"
+        cat ~/.ssh/id_ed25519_${SERVICE}.pub
+        echo "--------------------------------"
+    fi
+}
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
