@@ -6,3 +6,4 @@ zsh/.config/zsh/ohmyzsh/
 .zsh_sessions
 .zcompdump*
 .p10k.zsh.zwc
+.DS_Store

@@ -3,18 +3,19 @@ layout: default
 title: Zsh Setup
 ---
 
-# ZSH
-
 ## download MesloLGS NF
+
 [powerlevel10k github fonts](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts)
+
 ## set zsh as default shell
 
 ```bash
 chsh -s $(which zsh) && sudo chsh -s $(which zsh) root
 ```
+
 ## stow
 
-```bash    
+```bash
 stow zsh
 ```
 
@@ -24,11 +25,12 @@ stow zsh
 echo $ZDOTDIR
 ```
 
-## install ohmyzsh 
+## install ohmyzsh
+
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
-    
+
 ## Powerlevel 10k
 
 ```bash

@@ -3,9 +3,8 @@ title: Home
 layout: home
 ---
 
-# Dotfiles Documentation
-
 ## System Packages required
+
 ```bash
-stow zsh eza ripgrep curl git fzf fd tree-sitter-cli tar lazygit
+stow zsh eza ripgrep curl git fzf fd tree-sitter-cli lazygit wget node luarocks ast-grep
 ```
