@@ -1,3 +1,8 @@
+---
+layout: default
+title: SSH
+---
+
 # Stow and ssh include
 ## 1. Stow the repo config
     cd ~/dotfiles && stow ssh

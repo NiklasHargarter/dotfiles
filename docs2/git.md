@@ -1,3 +1,0 @@
-# Git
-
-## Do git things

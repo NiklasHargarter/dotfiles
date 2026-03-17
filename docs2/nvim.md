@@ -1,3 +1,0 @@
-# Nvim
-
-## Do nvim things

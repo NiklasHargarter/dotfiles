@@ -1,3 +1,0 @@
-# SSH
-
-## Do ssh things
