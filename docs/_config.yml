@@ -1,6 +1,8 @@
-remote_theme: just-the-docs/just-the-docs
 title: Niklas Dotfiles
 description: Stylish Zsh, SSH, and Git configuration.
+theme: just-the-docs
+
+url: https://niklashargarter.github.io/dotfiles
 
 # Enable features
 search_enabled: true
