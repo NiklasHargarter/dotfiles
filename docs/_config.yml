@@ -1,8 +1,8 @@
-title: Just the Docs Template
-description: A starter template for a Jeykll site using the Just the Docs theme!
+title: Personal Dotfile setup
+description: Contains config for full terminal setup with zsh, ssh and tooling.
 theme: just-the-docs
 
-url: https://just-the-docs.github.io
+url: https://NiklasHargarter.github.io/dotfiles
 
 aux_links:
-  Template Repository: https://github.com/just-the-docs/just-the-docs-template
+  Template Repository: https://github.com/NiklasHargarter/dotfiles
