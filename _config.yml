@@ -1,3 +1,12 @@
-theme: jekyll-theme-primer
-title: Niklas' Dotfiles
-description: Minimalist Zsh, SSH, and Git setup.
+remote_theme: just-the-docs/just-the-docs
+title: Niklas Dotfiles
+description: Stylish Zsh, SSH, and Git configuration.
+
+# Enable features
+search_enabled: true
+enable_copy_code_button: true
+
+# Link to your actual repo (optional, adds a GitHub icon)
+aux_links:
+  "GitHub Repository":
+    - "https://github.com/NiklasHargarter/dotfiles"

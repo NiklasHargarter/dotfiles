@@ -1,3 +1,9 @@
+---
+layout: default
+title: Zsh Setup
+nav_order: 2
+---
+
 # ZSH
 
 ## download MesloLGS NF
