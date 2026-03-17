@@ -1,0 +1,14 @@
+title: Niklas Dotfiles
+description: Stylish Zsh, SSH, and Git configuration.
+theme: just-the-docs
+
+url: https://niklashargarter.github.io/dotfiles
+
+# Enable features
+search_enabled: true
+enable_copy_code_button: true
+
+# Link to your actual repo (optional, adds a GitHub icon)
+aux_links:
+  "GitHub Repository":
+    - "https://github.com/NiklasHargarter/dotfiles"

@@ -1,14 +1,8 @@
-title: Niklas Dotfiles
-description: Stylish Zsh, SSH, and Git configuration.
+title: Just the Docs Template
+description: A starter template for a Jeykll site using the Just the Docs theme!
 theme: just-the-docs
 
-url: https://niklashargarter.github.io/dotfiles
+url: https://just-the-docs.github.io
 
-# Enable features
-search_enabled: true
-enable_copy_code_button: true
-
-# Link to your actual repo (optional, adds a GitHub icon)
 aux_links:
-  "GitHub Repository":
-    - "https://github.com/NiklasHargarter/dotfiles"
+  Template Repository: https://github.com/just-the-docs/just-the-docs-template
