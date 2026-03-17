@@ -7,5 +7,5 @@ layout: home
 
 ## System Packages required
 ```bash
-stow zsh eza ripgrep curl git
+stow zsh eza ripgrep curl git fzf fd tree-sitter-cli tar lazygit
 ```

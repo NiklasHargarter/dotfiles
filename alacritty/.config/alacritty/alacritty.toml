@@ -1,0 +1,62 @@
+# --- Imports ---
+# You can split themes into separate files and import them here if you wish
+
+[window]
+padding = { x = 12, y = 12 }
+dynamic_title = true
+opacity = 0.98        # High opacity for better readability in Neovim
+blur = true           # macOS specific "vibrancy" effect
+
+# --- MesloLGS NF Font (Perfect for P10k) ---
+[font]
+# The family name for the p10k-specific font on macOS is exactly "MesloLGS NF"
+normal = { family = "MesloLGS NF", style = "Regular" }
+bold = { family = "MesloLGS NF", style = "Bold" }
+italic = { family = "MesloLGS NF", style = "Italic" }
+bold_italic = { family = "MesloLGS NF", style = "Bold Italic" }
+size = 14.0
+
+[font.offset]
+# p10k looks best with a little extra vertical breathing room
+x = 0
+y = 1
+
+# --- Terminal Integration ---
+[env]
+# Crucial for Neovim/LazyVim to enable undercurls and true color
+TERM = "xterm-256color"
+
+# --- Colors (Tokyo Night - Matches LazyVim's default) ---
+[colors.primary]
+background = "#1a1b26"
+foreground = "#c0caf5"
+
+[colors.normal]
+black   = "#15161e"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#a9b1d6"
+
+[colors.bright]
+black   = "#414868"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#c0caf5"
+
+# --- Interaction ---
+[selection]
+save_to_clipboard = true
+
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+
+[mouse]
+hide_when_typing = true
