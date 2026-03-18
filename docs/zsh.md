@@ -10,7 +10,13 @@ title: Zsh Setup
 ## set zsh as default shell
 
 ```bash
-chsh -s $(which zsh) && sudo chsh -s $(which zsh) root
+chsh -s $(which zsh)
+```
+
+## set zsh as default for root user
+
+```bash
+sudo chsh -s $(which zsh) root
 ```
 
 ## stow
