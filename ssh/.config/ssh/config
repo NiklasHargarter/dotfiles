@@ -9,3 +9,8 @@ Host slifer
     HostName 193.175.188.174
     User niklas
     IdentityFile ~/.ssh/id_ed25519_slifer
+
+Host mimir
+    HostName 193.175.188.176
+    User hargarter
+    IdentityFile ~/.ssh/id_ed25519_mimir
