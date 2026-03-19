@@ -5,7 +5,7 @@ export PATH="$PATH:$HOME/.local/bin"
 # Path to your Oh My Zsh installation.
 export ZSH="$ZDOTDIR/ohmyzsh"
 
-# For Servers (copies to the server using the SSH config alias)
+# For Servers
 auth-server() {
     local SERVICE=$1
     if [[ -z "$SERVICE" ]]; then
@@ -13,16 +13,17 @@ auth-server() {
         return 1
     fi
 
-    # Generate key if it doesn't exist
     if [[ ! -f ~/.ssh/id_ed25519_$SERVICE ]]; then
-        ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE -N ""
+        echo "--- Generating key for $SERVICE ---"
+        echo "You will now be prompted to enter a PIN (passphrase):"
+        # Removed -N; ssh-keygen will now prompt you securely
+        ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE
     fi
 
-    # Copy to server
-    ssh-copy-id -i ~/.ssh/id_ed25519_${SERVICE}.pub $SERVICE
+    ssh-copy-id -i ~/.ssh/id_ed25519_${SERVICE}.pub "$SERVICE"
 }
 
-# For UI Services (GitHub, GitLab, etc.)
+# For UI Services
 auth-ui() {
     local SERVICE=$1
     if [[ -z "$SERVICE" ]]; then
@@ -30,12 +31,12 @@ auth-ui() {
         return 1
     fi
 
-    # Generate key if it doesn't exist
     if [[ ! -f ~/.ssh/id_ed25519_$SERVICE ]]; then
-        ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE -N ""
+        echo "--- Generating key for $SERVICE ---"
+        echo "You will now be prompted to enter a PIN (passphrase):"
+        ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE
     fi
 
-    # Output the key and copy to clipboard (works on Mac and Linux)
     if command -v pbcopy >/dev/null; then
         cat ~/.ssh/id_ed25519_${SERVICE}.pub | pbcopy
         echo "Key for $SERVICE copied to clipboard (macOS)."
@@ -45,7 +46,6 @@ auth-ui() {
     else
         echo "--- Public Key for $SERVICE ---"
         cat ~/.ssh/id_ed25519_${SERVICE}.pub
-        echo "--------------------------------"
     fi
 }
 
