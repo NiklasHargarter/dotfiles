@@ -13,6 +13,17 @@ matt/course-video-manager | main | S: 0 | U: 1 | A: 0 | 17.3%
 - **Git status**: branch, staged (S), unstaged (U), added/untracked (A)
 - **Context window** usage percentage — keep it under ~60% for best results
 
+## configure npm global prefix
+
+Avoids needing `sudo` for `npm install -g`. One-time setup:
+
+```bash
+mkdir -p ~/.npm-global
+npm config set prefix '~/.npm-global'
+```
+
+The `~/.npm-global/bin` PATH entry is already included in the stowed `.zshrc`. Restart your shell after stowing zsh (or source it) before running the installs below.
+
 ## install Claude Code
 
 ```bash
@@ -38,13 +49,6 @@ mkdir -p ~/.config/ccstatusline
 
 ```bash
 stow claude
-```
-
-## make scripts executable
-
-```bash
-chmod +x ~/.claude/statusline-command.sh
-chmod +x ~/.claude/statusline-wrapper.sh
 ```
 
 ## configure repos directory
