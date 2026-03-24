@@ -14,5 +14,5 @@ brew install stow zsh eza ripgrep curl git fzf fd tree-sitter-cli lazygit wget n
 ### For Ubuntu
 
 ```bash
-sudo apt install stow zsh eza ripgrep curl git fzf fd-find tree-sitter-cli wget nodejs luarocks
+sudo apt install stow zsh eza ripgrep curl git fzf fd-find tree-sitter-cli wget nodejs npm luarocks
 ```

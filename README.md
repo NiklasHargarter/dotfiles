@@ -15,7 +15,7 @@ cd ~/dotfiles
 mkdir -p ~/.config
 
 # 3. Stow your desired configurations
-stow zsh nvim alacritty aerospace
+stow zsh nvim alacritty aerospace claude
 ```
 
 ## 🛠️ The Stack
@@ -25,6 +25,7 @@ stow zsh nvim alacritty aerospace
 - **Editor:** [Neovim](https://neovim.io/) (via [LazyVim](https://www.lazyvim.org/))
 - **Shell:** [Zsh](https://www.zsh.org/) with [Oh My Zsh](https://ohmyz.sh/) & [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
 - **Multiplexer:** [SSH](https://www.openssh.com/) (Modular config)
+- **AI CLI:** [Claude Code](https://claude.ai/code) (Status line with git info & context %)
 
 ## 📋 Requirements
 

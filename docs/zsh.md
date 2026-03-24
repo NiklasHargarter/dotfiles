@@ -73,3 +73,32 @@ git clone https://github.com/zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/p
 git clone https://github.com/Aloxaf/fzf-tab ~/.oh-my-zsh/custom/plugins/fzf-tab
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 ```
+
+## usage guide
+
+### plugins
+
+| Plugin | What it gives you |
+|---|---|
+| `git` | Aliases: `gst`, `gco`, `gcmsg`, `gl`, `gp`, etc. |
+| `fzf` | Fuzzy finder widgets and keybindings |
+| `eza` | Nicer `ls`, `ll`, `la`, `lD` aliases |
+| `zsh-autosuggestions` | Grey inline suggestions from history |
+| `zsh-completions` | Extra completion definitions |
+| `fzf-tab` | fzf UI for Tab completion menus |
+| `zsh-syntax-highlighting` | Colors commands as you type |
+
+### key bindings
+
+| Key | Action |
+|---|---|
+| `Ctrl + A` / `Ctrl + E` | Move to start / end of line |
+| `Alt + B` / `Alt + F` | Move back / forward one word |
+| `Ctrl + W` | Delete previous word |
+| `Ctrl + U` / `Ctrl + K` | Delete to line start / end |
+| `Ctrl + Y` | Paste last killed text |
+| `Ctrl + R` | Fuzzy search command history (fzf) |
+| `Ctrl + T` | Fuzzy insert file/path |
+| `Alt + C` | Fuzzy jump to directory |
+| `Right Arrow` | Accept autosuggestion |
+| `Tab` | Trigger fzf-tab completion |
