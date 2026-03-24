@@ -1,8 +1,0 @@
-# Zsh generated caches
-.zcompdump*
-
-# Zsh history
-.zsh_history
-
-# Compiled Zsh files
-*.zwc

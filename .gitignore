@@ -1,9 +1,1 @@
-# Ignore the actual framework/plugin code
-zsh/.config/zsh/ohmyzsh/
-
-# Ignore Zsh internal files
-.zsh_history
-.zsh_sessions
-.zcompdump*
-.p10k.zsh.zwc
 .DS_Store

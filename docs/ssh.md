@@ -3,15 +3,21 @@ layout: default
 title: SSH
 ---
 
-## 1. Stow the repo config
+## 1. Pre-create config directory
+
+Required before stow so that stow links individual files instead of symlinking the entire directory into the repo.
+
+    mkdir -p ~/.config/ssh
+
+## 2. Stow the repo config
 
     cd ~/dotfiles && stow ssh
 
-## 2. Ensure the local .ssh folder exists and has right permissions
+## 3. Ensure the local .ssh folder exists and has right permissions
 
     mkdir -p ~/.ssh && chmod 700 ~/.ssh
 
-## 3. Add the Include line to the main SSH config
+## 4. Add the Include line to the main SSH config
 
     echo "Include ~/.config/ssh/config" >> ~/.ssh/config
     chmod 600 ~/.ssh/config

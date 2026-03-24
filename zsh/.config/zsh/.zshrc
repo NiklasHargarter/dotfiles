@@ -3,7 +3,7 @@
 export PATH="$PATH:$HOME/.local/bin"
 
 # Path to your Oh My Zsh installation.
-export ZSH="$ZDOTDIR/ohmyzsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # For Servers
 auth-server() {
