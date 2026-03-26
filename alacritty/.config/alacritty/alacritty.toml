@@ -60,3 +60,8 @@ style = { shape = "Beam", blinking = "On" }
 
 [mouse]
 hide_when_typing = true
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"
