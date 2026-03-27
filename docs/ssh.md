@@ -22,22 +22,19 @@ Required before stow so that stow links individual files instead of symlinking t
     echo "Include ~/.config/ssh/config" >> ~/.ssh/config
     chmod 600 ~/.ssh/config
 
-## services like github
+## Authenticate services
+
+For UI services (e.g. GitHub — opens browser):
 
     auth-ui github
 
-## server with ssh-copy-id
+For servers (uses ssh-copy-id):
 
-    auth-server homelab
+    auth-server slifer
+    auth-server mimir
 
-## 1. Set the service name (change this for each key)
+## Switch dotfiles remote from HTTPS to SSH
 
-    SERVICE="github"
+After SSH keys are set up, switch the origin remote so you can push:
 
-## 2. Run the generator
-
-    ssh-keygen -t ed25519 -C "niklas@$(hostname)-to-$SERVICE" -f ~/.ssh/id_ed25519_$SERVICE -N ""
-
-## 3. Copy key to host
-
-    ssh-copy-id -i ~/.ssh/id_ed25519_${SERVICE}.pub $SERVICE
+    git -C ~/dotfiles remote set-url origin git@github.com:NiklasHargarter/dotfiles.git
