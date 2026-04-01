@@ -132,7 +132,7 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # Load Powerlevel10k config if present.
-[[ -r "${ZDOTDIR:-$HOME}/.p10k.zsh" ]] && source "${ZDOTDIR:-$HOME}/.p10k.zsh"
+[[ -r "$ZDOTDIR/.p10k.zsh" ]] && source "$ZDOTDIR/.p10k.zsh"
 
 # User configuration
 
@@ -163,4 +163,4 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-[[ -f "${ZDOTDIR:-$HOME}/.config/zsh/aliases.zsh" ]] && source "${ZDOTDIR:-$HOME}/.config/zsh/aliases.zsh"
+[[ -f "$ZDOTDIR/aliases.zsh" ]] && source "$ZDOTDIR/aliases.zsh"
