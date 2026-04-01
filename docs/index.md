@@ -8,11 +8,11 @@ layout: home
 ### For mac with brew
 
 ```bash
-brew install stow zsh eza ripgrep curl git fzf fd tree-sitter-cli lazygit wget node luarocks ast-grep gh
+brew install stow zsh eza ripgrep curl git fzf fd tree-sitter-cli lazygit wget node luarocks ast-grep gh zellij
 ```
 
 ### For Ubuntu
 
 ```bash
-sudo apt install stow zsh eza ripgrep curl git fzf fd-find tree-sitter-cli wget nodejs npm luarocks gh
+sudo apt install stow zsh eza ripgrep curl git fzf fd-find tree-sitter-cli wget nodejs npm luarocks gh zellij
 ```

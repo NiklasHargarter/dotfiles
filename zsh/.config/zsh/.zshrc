@@ -162,3 +162,5 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+[[ -f "${ZDOTDIR:-$HOME}/.config/zsh/aliases.zsh" ]] && source "${ZDOTDIR:-$HOME}/.config/zsh/aliases.zsh"
