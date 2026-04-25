@@ -16,3 +16,10 @@ mkdir -p ~/.config/alacritty
 ```bash
 stow alacritty
 ```
+
+## cleanup
+
+```bash
+cd ~/dotfiles && stow -D alacritty
+rmdir ~/.config/alacritty 2>/dev/null
+```

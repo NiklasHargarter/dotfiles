@@ -7,6 +7,10 @@ title: Zsh Setup
 
 [powerlevel10k github fonts](https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#fonts)
 
+## how it works
+
+`.zshenv` is stowed to `~/.zshenv` (the only file in `$HOME`) because zsh reads it before `ZDOTDIR` is set. It sets `ZDOTDIR=~/.config/zsh`, which redirects all other zsh config to XDG.
+
 ## set zsh as default shell
 
 ```bash
@@ -73,6 +77,46 @@ git clone https://github.com/zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/p
 git clone https://github.com/Aloxaf/fzf-tab ~/.oh-my-zsh/custom/plugins/fzf-tab
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 ```
+
+## modular aliases (conf.d/)
+
+Tool-specific aliases live in `zsh/.config/zsh/conf.d/`. Each file guards itself so it only loads when the tool is available:
+
+```zsh
+# conf.d/zellij.zsh
+command -v zellij >/dev/null || return
+alias z='zellij'
+```
+
+To add aliases for a new tool, create a new `.zsh` file in `conf.d/` — no other files need editing.
+
+Current topic files:
+
+| File | Tool | Guard |
+|---|---|---|
+| `zellij.zsh` | Zellij | `command -v zellij` |
+| `vpn.zsh` | Cisco Secure Client | `/opt/cisco/secureclient/bin/vpn` exists |
+
+## cleanup
+
+Remove all zsh config and return to a fresh state.
+
+```bash
+# Unstow config files
+cd ~/dotfiles && stow -D zsh
+
+# Remove Oh My Zsh (includes plugins and themes)
+rm -rf ~/.oh-my-zsh
+
+# Remove zsh cache and history
+rm -rf ~/.config/zsh/.zsh_history ~/.config/zsh/.zcompdump*
+rm -rf ~/.zcompdump*
+
+# Reset default shell to bash
+chsh -s $(which bash)
+```
+
+After re-setup, follow all steps from [set zsh as default shell](#set-zsh-as-default-shell) onwards.
 
 ## usage guide
 

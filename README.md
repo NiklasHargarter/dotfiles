@@ -4,32 +4,66 @@ This repository manages my system configurations using **GNU Stow**. It adheres 
 
 For detailed setup instructions, visit [the official documentation](https://niklashargarter.github.io/dotfiles/).
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/niklashargarter/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
-# 2. Ensure config directory exists
-mkdir -p ~/.config
+# 2. Pre-create config directories (prevents stow from symlinking entire dirs)
+mkdir -p ~/.config/zsh ~/.config/nvim ~/.config/alacritty ~/.config/ssh
+mkdir -p ~/.claude ~/.config/ccstatusline
 
-# 3. Stow your desired configurations
-stow zsh nvim alacritty aerospace claude
+# 3. Stow the modules you need (pick and choose)
+stow zsh git ssh nvim          # essentials (any machine)
+stow alacritty aerospace       # desktop / macOS only
+stow claude                    # Claude Code config
+stow ciscosecureclient         # VPN credentials template (see docs/vpn.md)
 ```
 
-## 🛠️ The Stack
+## Switch from HTTPS to SSH
 
-- **Window Manager:** [Aerospace](https://github.com/nikiv/aerospace) (macOS tiling)
+After cloning over HTTPS, run the bootstrap script to generate a GitHub SSH key and switch the remote:
+
+```bash
+./scripts/setup-dotfiles-ssh.sh
+```
+
+## SSH Key Setup for Servers / Services
+
+Generate and deploy SSH keys to remote hosts:
+
+```bash
+# For servers (uses ssh-copy-id)
+./scripts/setup-ssh-keys.sh server <host>
+
+# For UI services like GitHub (copies public key to clipboard)
+./scripts/setup-ssh-keys.sh ui github
+```
+
+## The Stack
+
+- **Window Manager:** [Aerospace](https://github.com/nikitabobko/AeroSpace) (macOS tiling)
 - **Terminal:** [Alacritty](https://alacritty.org/)
 - **Editor:** [Neovim](https://neovim.io/) (via [LazyVim](https://www.lazyvim.org/))
 - **Shell:** [Zsh](https://www.zsh.org/) with [Oh My Zsh](https://ohmyz.sh/) & [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- **Multiplexer:** [SSH](https://www.openssh.com/) (Modular config)
+- **SSH:** Modular config
 - **AI CLI:** [Claude Code](https://claude.ai/code) (Status line with git info & context %)
 
-## 📋 Requirements
+## Modularity
 
-Ensure you have the following installed before stowing:
+Zsh loads topic files from `zsh/.config/zsh/conf.d/`. Each file guards its own dependencies so it's safe to stow everywhere:
+
+```zsh
+# conf.d/zellij.zsh — only loads if zellij is installed
+command -v zellij >/dev/null || return
+alias z='zellij'
+```
+
+To add aliases for a new tool, create a new file in `conf.d/` with a guard — no other files need editing.
+
+## Requirements
 
 - **GNU Stow** (The symlink manager)
 - **Zsh** (Default shell)
@@ -37,6 +71,6 @@ Ensure you have the following installed before stowing:
 - **curl/wget** (For installation scripts)
 
 ```bash
-# Debian/Ubuntu example
+# Debian/Ubuntu
 sudo apt update && sudo apt install -y stow zsh git curl
 ```

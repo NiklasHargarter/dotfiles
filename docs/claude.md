@@ -84,8 +84,6 @@ git submodule update --remote vendor/mattpocock-skills
 ```
 
 | Skill | Description |
-
-| Skill | Description |
 |---|---|
 | `write-a-prd` | Create a PRD via interview, filed as a GitHub issue |
 | `prd-to-plan` | Turn a PRD into a multi-phase implementation plan |
@@ -114,3 +112,25 @@ bash ~/.claude/scripts/link-vendor-skills.sh
 ## restart Claude Code
 
 Restart Claude Code to see the status line in action.
+
+## cleanup
+
+```bash
+# Unstow config
+cd ~/dotfiles && stow -D claude
+
+# Remove vendor skill symlinks
+find ~/.claude/skills/ -type l -delete 2>/dev/null
+
+# Uninstall global npm packages
+npm uninstall -g @anthropic-ai/claude-code ccstatusline
+
+# Remove Claude Code data and config
+rm -rf ~/.claude
+rm -rf ~/.config/ccstatusline
+
+# Remove conversation history and cache
+rm -rf ~/.config/claude
+```
+
+The npm global prefix (`~/.npm-global`) is shared — only remove it if no other global packages remain.

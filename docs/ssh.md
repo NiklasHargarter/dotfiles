@@ -24,17 +24,37 @@ Required before stow so that stow links individual files instead of symlinking t
 
 ## Authenticate services
 
-For UI services (e.g. GitHub — opens browser):
+For UI services (e.g. GitHub — copies public key to clipboard):
 
-    auth-ui github
+    ./scripts/setup-ssh-keys.sh ui github
 
-For servers (uses ssh-copy-id):
+For servers (generates key + ssh-copy-id):
 
-    auth-server slifer
-    auth-server mimir
+    ./scripts/setup-ssh-keys.sh server slifer
+    ./scripts/setup-ssh-keys.sh server mimir
 
 ## Switch dotfiles remote from HTTPS to SSH
 
-After SSH keys are set up, switch the origin remote so you can push:
+After SSH keys are set up, run the bootstrap script or switch manually:
 
-    git -C ~/dotfiles remote set-url origin git@github.com:NiklasHargarter/dotfiles.git
+    ./scripts/setup-dotfiles-ssh.sh
+
+## cleanup
+
+```bash
+# Unstow config
+cd ~/dotfiles && stow -D ssh
+
+# Remove the Include line from ~/.ssh/config
+sed -i '/Include ~\/.config\/ssh\/config/d' ~/.ssh/config
+
+# Optionally remove generated keys
+rm -f ~/.ssh/id_ed25519_github{,.pub}
+rm -f ~/.ssh/id_ed25519_slifer{,.pub}
+rm -f ~/.ssh/id_ed25519_mimir{,.pub}
+
+# Remove stow target directory if empty
+rmdir ~/.config/ssh 2>/dev/null
+```
+
+Keys on remote servers (deployed via `ssh-copy-id`) must be removed manually from each host's `~/.ssh/authorized_keys`.
