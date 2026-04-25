@@ -32,15 +32,19 @@ After cloning over HTTPS, run the bootstrap script to generate a GitHub SSH key 
 
 ## SSH Key Setup for Servers / Services
 
-Generate and deploy SSH keys to remote hosts:
+`~/.config/ssh/config` is the source of truth — every Host block tagged with a
+`# deploy: server|manual` marker is picked up by the key setup script. Run with
+no args to set up every annotated host, or pass a specific Host alias:
 
 ```bash
-# For servers (uses ssh-copy-id)
-./scripts/setup-ssh-keys.sh server <host>
-
-# For UI services like GitHub (copies public key to clipboard)
-./scripts/setup-ssh-keys.sh ui github
+./scripts/setup-ssh-keys.sh              # set up every annotated Host
+./scripts/setup-ssh-keys.sh slifer       # only this one
 ```
+
+`server` mode runs `ssh-copy-id` for you; `manual` mode copies the pubkey to
+your clipboard so you can paste it into a web UI (GitHub, GitLab self-hosted,
+Forgejo, …). See [docs/ssh.md](docs/ssh.md) for the full walkthrough including
+how to add a new machine or service.
 
 ## The Stack
 

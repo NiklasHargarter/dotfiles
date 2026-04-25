@@ -1,15 +1,29 @@
+# Each managed Host block has a `# deploy: server|manual` marker on the line
+# directly above it. `scripts/setup-ssh-keys.sh` reads this file as the source
+# of truth and generates / deploys the key declared in IdentityFile.
+#
+#   server  — script will ssh-copy-id the pubkey to the Host alias
+#   manual  — script will copy the pubkey to your clipboard so you can paste
+#             it into a web UI (GitHub, GitLab, Forgejo, …)
+#
+# Hosts without a `# deploy:` marker are ignored by the script.
+
 # --- GitHub ---
+# deploy: manual
 Host github.com
     HostName github.com
     User git
     IdentityFile ~/.ssh/id_ed25519_github
 
 # --- Slifer ---
+# deploy: server
 Host slifer
     HostName 193.175.188.174
     User niklas
     IdentityFile ~/.ssh/id_ed25519_slifer
 
+# --- Mimir ---
+# deploy: server
 Host mimir
     HostName 193.175.188.176
     User hargarter

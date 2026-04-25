@@ -53,13 +53,16 @@ mv zellij ~/.local/bin/
 
 ### Generate SSH keys for servers / services
 
-```bash
-# For servers (uses ssh-copy-id)
-./scripts/setup-ssh-keys.sh server <host>
+`~/.config/ssh/config` is the source of truth: every Host block tagged with
+`# deploy: server` or `# deploy: manual` is picked up by the script.
 
-# For UI services like GitHub (copies public key to clipboard)
-./scripts/setup-ssh-keys.sh ui github
+```bash
+./scripts/setup-ssh-keys.sh              # set up every annotated Host
+./scripts/setup-ssh-keys.sh slifer       # only this one
 ```
+
+See [SSH](ssh.md) for the full walkthrough including how to add a new machine
+or service.
 
 ### VPN credentials (optional, desktop only)
 
