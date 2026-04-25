@@ -5,7 +5,12 @@ title: VPN Setup
 
 ## Overview
 
-The Cisco Secure Client VPN aliases are loaded automatically when the Cisco binary is detected at `/opt/cisco/secureclient/bin/vpn`. On machines without it, the aliases are skipped.
+The Cisco Secure Client VPN aliases are loaded automatically when the Cisco binary is detected. The first existing path wins:
+
+- Linux: `/opt/cisco/secureclient/bin/vpn`
+- macOS: `/opt/cisco/anyconnect/bin/vpn`
+
+On machines without either, the aliases are skipped.
 
 ## Stow
 

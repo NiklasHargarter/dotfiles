@@ -1,5 +1,9 @@
-[[ -x /opt/cisco/secureclient/bin/vpn ]] || return
+for _cisco_vpn in /opt/cisco/secureclient/bin/vpn /opt/cisco/anyconnect/bin/vpn; do
+  [[ -x $_cisco_vpn ]] && break
+done
+[[ -x $_cisco_vpn ]] || { unset _cisco_vpn; return; }
 
-alias vpnup='/opt/cisco/secureclient/bin/vpn -s < ~/.vpn-creds'
-alias vpndown='/opt/cisco/secureclient/bin/vpn disconnect'
-alias vpnstat='/opt/cisco/secureclient/bin/vpn stats'
+alias vpnup="$_cisco_vpn -s < ~/.vpn-creds"
+alias vpndown="$_cisco_vpn disconnect"
+alias vpnstat="$_cisco_vpn stats"
+unset _cisco_vpn
