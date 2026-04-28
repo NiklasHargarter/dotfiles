@@ -28,3 +28,10 @@ Host mimir
     HostName 193.175.188.176
     User hargarter
     IdentityFile ~/.ssh/id_ed25519_mimir
+
+# --- SDU GitLab ---
+# deploy: manual
+Host gitlab.sdu.dk
+    HostName gitlab.sdu.dk
+    User git
+    IdentityFile ~/.ssh/id_ed25519_gitlab_sdu
