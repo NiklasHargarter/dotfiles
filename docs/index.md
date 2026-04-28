@@ -3,6 +3,19 @@ title: Home
 layout: home
 ---
 
+## Quick setup / teardown
+
+```bash
+./scripts/setup.sh     # full non-interactive install
+./scripts/teardown.sh  # full removal (SSH keys not touched)
+```
+
+Both scripts are idempotent — safe to re-run. See [Updating](updating.md) for pulling changes onto an existing machine.
+
+## Updating an existing machine
+
+See [Updating](updating.md) — when `git pull` is enough vs. when you need to restow.
+
 ## Setup Order
 
 1. [Install system packages](#system-packages-required) (below)

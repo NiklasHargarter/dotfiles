@@ -69,44 +69,21 @@ repo_name=$(echo "$cwd" | sed "s|^$HOME/repos/||")
 
 Custom skills live in `claude/.claude/skills/` and are stow-managed and git-tracked.
 
-Skills from [mattpocock/skills](https://github.com/mattpocock/skills) are available via the vendored submodule at `vendor/mattpocock-skills/`. These are linked into `~/.claude/skills/` by a script — not copied — so they are never tracked in this repo.
+## remove vendor skills (migration)
 
-To link all vendor skills (run once on setup):
+The `vendor/mattpocock-skills` submodule has been removed from this repo. On machines where it was previously deployed, run the following to reach a clean state:
 
 ```bash
-bash ~/.claude/scripts/link-vendor-skills.sh
+git pull
+git submodule deinit -f vendor/mattpocock-skills
+rm -rf .git/modules/vendor/mattpocock-skills
+rm -rf vendor/mattpocock-skills
 ```
 
-To update vendor skills to latest:
+Any symlinks that were created by `link-vendor-skills.sh` should also be cleaned up:
 
 ```bash
-git submodule update --remote vendor/mattpocock-skills
-```
-
-| Skill | Description |
-|---|---|
-| `write-a-prd` | Create a PRD via interview, filed as a GitHub issue |
-| `prd-to-plan` | Turn a PRD into a multi-phase implementation plan |
-| `prd-to-issues` | Break a PRD into independently-grabbable GitHub issues |
-| `grill-me` | Get relentlessly interviewed about a plan or design |
-| `design-an-interface` | Generate multiple interface designs using parallel sub-agents |
-| `request-refactor-plan` | Create a detailed refactor plan, filed as a GitHub issue |
-| `tdd` | Red-green-refactor TDD loop, one vertical slice at a time |
-| `triage-issue` | Investigate a bug, identify root cause, file a GitHub issue |
-| `improve-codebase-architecture` | Find architectural improvements and testability gaps |
-| `migrate-to-shoehorn` | Migrate `as` type assertions to @total-typescript/shoehorn |
-| `scaffold-exercises` | Create exercise structures with problems, solutions, explainers |
-| `setup-pre-commit` | Set up Husky with lint-staged, Prettier, type checking, tests |
-| `git-guardrails-claude-code` | Block dangerous git commands via Claude Code hooks |
-| `write-a-skill` | Create new skills with proper structure |
-| `edit-article` | Edit and improve articles for clarity and structure |
-| `ubiquitous-language` | Extract a DDD-style ubiquitous language glossary |
-| `obsidian-vault` | Search, create, and manage Obsidian notes |
-
-## link vendor skills
-
-```bash
-bash ~/.claude/scripts/link-vendor-skills.sh
+find ~/.claude/skills/ -type l -delete 2>/dev/null
 ```
 
 ## restart Claude Code

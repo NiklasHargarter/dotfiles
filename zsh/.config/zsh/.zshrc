@@ -1,4 +1,4 @@
-export PATH="$PATH:$HOME/.local/bin:$HOME/.npm-global/bin"
+export PATH="$PATH:$HOME/.local/bin"
 
 # Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
