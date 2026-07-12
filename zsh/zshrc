@@ -1,5 +1,10 @@
 export PATH="$PATH:$HOME/.local/bin"
 
+# Ghostty shell integration. Our custom ZDOTDIR (~/.config/zsh, set in .zshenv)
+# clobbers Ghostty's auto-injection, so its ssh wrapper (ssh-terminfo, installs
+# xterm-ghostty on remotes) never loads. Source it manually instead.
+[[ -n "$GHOSTTY_RESOURCES_DIR" ]] && source "$GHOSTTY_RESOURCES_DIR/shell-integration/zsh/ghostty-integration"
+
 # Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
