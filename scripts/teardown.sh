@@ -9,44 +9,55 @@ step() { echo ""; echo "==> $*"; }
 info() { echo "    $*"; }
 skip() { echo "    [skip] $*"; }
 
-# remove only if it's a symlink we created
-unlink_dot() {
-    local dst="$1"
-    if [[ -L "$dst" ]]; then rm "$dst" && info "unlinked ${dst/#$HOME/\~}"; else skip "${dst/#$HOME/\~} not a symlink"; fi
-}
+# DRY_RUN=1 ./teardown.sh  → print what would be removed, change nothing.
+DRY_RUN="${DRY_RUN:-}"
 
-step "Unlinking dotfiles"
-unlink_dot ~/.zshenv
-unlink_dot ~/.config/zsh/.zshrc
-unlink_dot ~/.config/zsh/.p10k.zsh
-unlink_dot ~/.config/zsh/conf.d/aliases.zsh
-unlink_dot ~/.config/zsh/conf.d/vpn.zsh
-unlink_dot ~/.config/zsh/conf.d/zellij.zsh
-unlink_dot ~/.gitconfig
-unlink_dot ~/.config/ssh/config
-unlink_dot ~/.claude/settings.json
-unlink_dot ~/.claude/statusline-command.sh
-unlink_dot ~/.claude/statusline-context.py
-unlink_dot ~/.claude/statusline-wrapper.sh
-unlink_dot ~/.claude/scripts/link-vendor-skills.sh
-unlink_dot ~/.config/ghostty/config
-unlink_dot ~/.config/alacritty/alacritty.toml
-[[ "$OS" == "Darwin" ]] && unlink_dot ~/.aerospace.toml
+# Discovery, not a fixed list: any symlink pointing INTO the dotfiles repo is
+# ours, whether the current setup.sh still creates it or it's a stale leftover
+# from an old rework (dead links included — readlink still reports the target).
+# This is why teardown works on machines that drifted from the current repo.
+# Scope stays shallow so we never walk into node_modules / ~/.claude/projects.
+step "Unlinking dotfiles (all symlinks that point into ~/dotfiles)"
+found=0
+while IFS= read -r f; do
+    target="$(readlink "$f")"
+    case "$target" in
+        *dotfiles/*) ;;                       # points into the repo → ours
+        *) continue ;;
+    esac
+    found=1
+    if [[ -n "$DRY_RUN" ]]; then
+        info "[dry-run] would unlink ${f/#$HOME/\~} -> $target"
+        continue
+    fi
+    rm "$f" && info "unlinked ${f/#$HOME/\~}"
+done < <(
+    find "$HOME" -maxdepth 1 -type l
+    find "$HOME/.config" "$HOME/.claude" -maxdepth 3 -type l 2>/dev/null
+)
+[[ "$found" == 0 ]] && skip "no dotfiles symlinks found on this machine"
 
 # OMZ may have left a real .zshrc + backup where our symlink was
-rm -f ~/.config/zsh/.zshrc ~/.config/zsh/.zshrc.pre-oh-my-zsh 2>/dev/null || true
+[[ -z "$DRY_RUN" ]] && rm -f ~/.config/zsh/.zshrc ~/.config/zsh/.zshrc.pre-oh-my-zsh 2>/dev/null || true
 
 step "Removing now-empty config dirs"
-for d in ~/.config/zsh/conf.d ~/.config/zsh ~/.config/ssh ~/.config/ghostty ~/.config/alacritty; do
-    rmdir "$d" 2>/dev/null && info "removed ${d/#$HOME/\~}" || true
-done
+if [[ -n "$DRY_RUN" ]]; then
+    skip "[dry-run] skipping dir prune"
+else
+    # Prune any dir left empty under ~/.config after unlinking (walks up too).
+    find "$HOME/.config" -depth -type d -empty -delete 2>/dev/null || true
+fi
 
 step "Removing SSH include line"
 SSH_CONF=~/.ssh/config
 if [[ -f "$SSH_CONF" ]] && grep -qF "Include ~/.config/ssh/config" "$SSH_CONF"; then
-    sed -i.bak '/Include ~\/.config\/ssh\/config/d' "$SSH_CONF"
-    rm -f "${SSH_CONF}.bak"
-    info "removed from ~/.ssh/config"
+    if [[ -n "$DRY_RUN" ]]; then
+        info "[dry-run] would remove Include line from ~/.ssh/config"
+    else
+        sed -i.bak '/Include ~\/.config\/ssh\/config/d' "$SSH_CONF"
+        rm -f "${SSH_CONF}.bak"
+        info "removed from ~/.ssh/config"
+    fi
 fi
 
 echo ""

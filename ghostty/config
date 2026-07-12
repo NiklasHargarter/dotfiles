@@ -1,4 +1,4 @@
-# Ghostty config. Ported from the old alacritty setup.
+# Ghostty config.
 # List builtin themes: `ghostty +list-themes`   Reload: cmd+shift+,
 
 theme = TokyoNight

@@ -6,7 +6,7 @@ each top-level folder is a tool; an `install` script links its files to where
 the tool expects them.
 
 ```
-zsh/  git/  ssh/  claude/  ghostty/  alacritty/  aerospace/  vpn/  scripts/
+zsh/  git/  ssh/  claude/  ghostty/  vpn/  scripts/
 ```
 
 ---
@@ -41,7 +41,6 @@ SSH once your GitHub key exists.
 | AI CLI | [Claude Code](https://claude.com/claude-code) + caveman + ponytail | `claude/` |
 | VCS | Git | `git/gitconfig` |
 | SSH | Modular, self-documenting config | `ssh/config` |
-| WM (mac) | [Aerospace](https://github.com/nikitabobko/AeroSpace) | `aerospace/aerospace.toml` |
 | VPN | Cisco Secure Client | `vpn/creds.template` |
 
 ---
@@ -228,11 +227,15 @@ installed tooling. So it's split: a safe unlink script, plus a per-machine menu.
 **Safe reset (always fine):**
 
 ```bash
-~/dotfiles/scripts/teardown.sh
+DRY_RUN=1 ~/dotfiles/scripts/teardown.sh   # preview — changes nothing
+~/dotfiles/scripts/teardown.sh             # do it
 ```
 
-Removes only the symlinks this repo created — no packages, no app data. Your
-repo, SSH keys, shell history, and `~/.vpn-creds` are left alone.
+Removes only symlinks pointing into `~/dotfiles` — no packages, no app data.
+It **discovers** them (scans `~`, `~/.config`, `~/.claude`) rather than working
+from a fixed list, so it also clears **stale links left by old reworks** on a
+machine that drifted from the current repo — dead links included. Your repo, SSH
+keys, shell history, and `~/.vpn-creds` are left alone.
 
 **Per-machine cleanup** — pick only what applies; none of it is needed to re-run
 `setup.sh`:

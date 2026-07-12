@@ -69,8 +69,6 @@ link claude/statusline-context.py ~/.claude/statusline-context.py
 link claude/statusline-wrapper.sh ~/.claude/statusline-wrapper.sh
 link claude/link-vendor-skills.sh ~/.claude/scripts/link-vendor-skills.sh
 link ghostty/config               ~/.config/ghostty/config
-link alacritty/alacritty.toml     ~/.config/alacritty/alacritty.toml
-[[ "$OS" == "Darwin" ]] && link aerospace/aerospace.toml ~/.aerospace.toml || skip "aerospace (macOS only)"
 # nvim runs stock — no config linked. vpn/creds.template is a template, filled manually.
 
 # ── 3. Default shell ───────────────────────────────────────────────────────────
