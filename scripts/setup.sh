@@ -19,6 +19,14 @@ clone_if_missing() {
     fi
 }
 
+# link <repo-relative-src> <target> — flat repo path → dotted system path.
+link() {
+    local src="$DOTFILES/$1" dst="$2"
+    mkdir -p "$(dirname "$dst")"
+    ln -sfn "$src" "$dst"
+    info "linked ${dst/#$HOME/\~}"
+}
+
 # ── 1. System packages ─────────────────────────────────────────────────────────
 step "Installing system packages"
 if [[ "$OS" == "Darwin" ]]; then
@@ -26,10 +34,11 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install stow zsh eza ripgrep curl git fzf fd tree-sitter-cli wget node luarocks ast-grep gh zellij
+    brew install zsh eza ripgrep curl git fzf fd wget node neovim ast-grep gh zellij
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
-    sudo apt-get install -y stow zsh eza ripgrep curl git fzf fd-find tree-sitter-cli wget nodejs npm luarocks gh python3-venv
+    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find neovim wget \
+        nodejs npm gh python3
 
     if ! command -v zellij >/dev/null; then
         mkdir -p ~/.local/bin
@@ -42,20 +51,29 @@ elif [[ "$OS" == "Linux" ]]; then
     fi
 fi
 
-# ── 2. Pre-create directories ──────────────────────────────────────────────────
-step "Pre-creating config directories"
-mkdir -p ~/.config/zsh ~/.config/ssh ~/.config/nvim ~/.config/alacritty \
-         ~/.config/ccstatusline ~/.claude ~/.ssh
-chmod 700 ~/.ssh
+# ── 2. Symlink config into place ────────────────────────────────────────────────
+step "Linking dotfiles"
+chmod 700 ~/.ssh 2>/dev/null || { mkdir -p ~/.ssh && chmod 700 ~/.ssh; }
 
-# ── 3. Stow packages ───────────────────────────────────────────────────────────
-step "Stowing packages"
-cd "$DOTFILES"
-stow zsh git ssh nvim alacritty ciscosecureclient claude
-[[ "$OS" == "Darwin" ]] && stow aerospace || skip "aerospace (macOS only)"
-info "Done."
+link zsh/zshenv                   ~/.zshenv
+link zsh/zshrc                    ~/.config/zsh/.zshrc
+link zsh/p10k.zsh                 ~/.config/zsh/.p10k.zsh
+link zsh/aliases.zsh              ~/.config/zsh/conf.d/aliases.zsh
+link zsh/vpn.zsh                  ~/.config/zsh/conf.d/vpn.zsh
+link zsh/zellij.zsh               ~/.config/zsh/conf.d/zellij.zsh
+link git/gitconfig                ~/.gitconfig
+link ssh/config                   ~/.config/ssh/config
+link claude/settings.json         ~/.claude/settings.json
+link claude/statusline-command.sh ~/.claude/statusline-command.sh
+link claude/statusline-context.py ~/.claude/statusline-context.py
+link claude/statusline-wrapper.sh ~/.claude/statusline-wrapper.sh
+link claude/link-vendor-skills.sh ~/.claude/scripts/link-vendor-skills.sh
+link ghostty/config               ~/.config/ghostty/config
+link alacritty/alacritty.toml     ~/.config/alacritty/alacritty.toml
+[[ "$OS" == "Darwin" ]] && link aerospace/aerospace.toml ~/.aerospace.toml || skip "aerospace (macOS only)"
+# nvim runs stock — no config linked. vpn/creds.template is a template, filled manually.
 
-# ── 4. Default shell ───────────────────────────────────────────────────────────
+# ── 3. Default shell ───────────────────────────────────────────────────────────
 step "Setting zsh as default shell"
 ZSH_PATH="$(command -v zsh)"
 if [[ "$SHELL" != "$ZSH_PATH" ]]; then
@@ -66,12 +84,11 @@ else
     skip "already using zsh"
 fi
 
-# ── 5. SSH include line ────────────────────────────────────────────────────────
+# ── 4. SSH include line ────────────────────────────────────────────────────────
 step "Configuring SSH"
 SSH_CONF=~/.ssh/config
 touch "$SSH_CONF" && chmod 600 "$SSH_CONF"
 if ! grep -qF "Include ~/.config/ssh/config" "$SSH_CONF"; then
-    # sed '1s/^/...' is silent on empty files on macOS; use printf + cat instead
     printf 'Include ~/.config/ssh/config\n\n' | cat - "$SSH_CONF" > "${SSH_CONF}.tmp"
     mv "${SSH_CONF}.tmp" "$SSH_CONF" && chmod 600 "$SSH_CONF"
     info "Include line added to ~/.ssh/config"
@@ -79,7 +96,7 @@ else
     skip "Include line already present"
 fi
 
-# ── 6. Oh My Zsh ──────────────────────────────────────────────────────────────
+# ── 5. Oh My Zsh ──────────────────────────────────────────────────────────────
 step "Installing Oh My Zsh"
 if [[ ! -d ~/.oh-my-zsh ]]; then
     RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -87,13 +104,13 @@ else
     skip "already installed"
 fi
 
-# OMZ installer backs up the stowed .zshrc symlink and drops a real file in its
-# place — restore all zsh symlinks so the dotfiles version wins
-rm -f "${HOME}/.config/zsh/.zshrc" "${HOME}/.config/zsh/.zshrc.pre-oh-my-zsh"
-cd "$DOTFILES" && stow --restow zsh
+# OMZ installer replaces the .zshrc symlink with a real file (+ a .pre-oh-my-zsh
+# backup) — restore our symlink so the dotfiles version wins
+rm -f ~/.config/zsh/.zshrc ~/.config/zsh/.zshrc.pre-oh-my-zsh
+link zsh/zshrc ~/.config/zsh/.zshrc
 info "Restored .zshrc symlink"
 
-# ── 7. Powerlevel10k + plugins ────────────────────────────────────────────────
+# ── 6. Powerlevel10k + plugins ────────────────────────────────────────────────
 step "Installing Powerlevel10k and plugins"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 clone_if_missing https://github.com/romkatv/powerlevel10k.git             "$ZSH_CUSTOM/themes/powerlevel10k"
@@ -106,11 +123,12 @@ clone_if_missing https://github.com/Aloxaf/fzf-tab.git                   "$ZSH_C
 step "Pre-installing gitstatus binary"
 "$ZSH_CUSTOM/themes/powerlevel10k/gitstatus/install" -f
 
-# ── 8. Claude Code ────────────────────────────────────────────────────────────
+# ── 7. Claude Code ────────────────────────────────────────────────────────────
 step "Installing Claude Code"
 curl -fsSL https://claude.ai/install.sh | bash
+info "Plugins (caveman, ponytail, …) auto-install on first launch from settings.json"
 
-# ── 9. Switch dotfiles remote to SSH ──────────────────────────────────────────
+# ── 8. Switch dotfiles remote to SSH ──────────────────────────────────────────
 step "Switching dotfiles remote to SSH"
 SSH_REMOTE="git@github.com:niklashargarter/dotfiles.git"
 current_remote=$(git -C "$DOTFILES" remote get-url origin 2>/dev/null || true)
@@ -130,5 +148,5 @@ echo ""
 echo "Next steps:"
 echo "  1. Reload shell       exec zsh"
 echo "  2. SSH keys           ./scripts/setup-ssh-keys.sh"
-echo "  3. VPN credentials    cp ~/.vpn-creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds"
+echo "  3. VPN credentials    cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds"
 echo "                        (then edit ~/.vpn-creds with your real values)"

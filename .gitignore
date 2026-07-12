@@ -1,6 +1,6 @@
 .DS_Store
-ciscosecureclient/.vpn-creds
 *.pem
 *.key
-nvim/.config/nvim/lazy-lock.json
-
+# real VPN creds live at ~/.vpn-creds (only the template is tracked)
+# per-machine local overrides
+zsh/local.zsh

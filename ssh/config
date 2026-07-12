@@ -11,7 +11,7 @@
 # --- GitHub ---
 # deploy: manual
 Host github.com
-    HostName github.com
+
     User git
     IdentityFile ~/.ssh/id_ed25519_github
 
@@ -35,3 +35,11 @@ Host gitlab.sdu.dk
     HostName gitlab.sdu.dk
     User git
     IdentityFile ~/.ssh/id_ed25519_gitlab_sdu
+
+# --- HS-Flensburg GitLab ---
+# deploy: manual
+Host gitlab.hs-flensburg.de
+    HostName gitlab.hs-flensburg.de
+    Port 2222
+    User git
+    IdentityFile ~/.ssh/id_ed25519_gitlab_hs-fl
