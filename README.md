@@ -210,6 +210,41 @@ exec zsh       # if shell config changed
   find ~/.config ~/.claude -xtype l 2>/dev/null   # broken symlinks
   ```
 
+### Migrating a drifted machine (old, unknown state → latest)
+
+A box last set up on an **older layout** — symlinks point at repo paths that a
+rework since moved, so they're now dead. The reset is always the same four steps,
+no matter how old:
+
+```bash
+cd ~/dotfiles
+git status                       # 1. dirty? live edits leaked through symlinks
+                                 #    keep any real improvement, else discard:
+                                 #    git restore <f> ; git clean -f <untracked>
+git pull                         # 2. get latest (offline: git merge --ff-only origin/main)
+./scripts/teardown.sh            # 3. unlink ALL dotfiles symlinks incl dead/stale
+./scripts/setup.sh               # 4. relink new layout + install baseline
+exec zsh
+```
+
+`teardown.sh` discovers links by target, so it clears stale ones from any past
+rework — that's what makes this work on a machine you haven't touched in months.
+Verify clean: `find ~ ~/.config ~/.claude -xtype l` prints nothing.
+
+**Gotchas learned the hard way:**
+
+- **Dirty tree blocks the pull.** Drift is live edits made *through* the symlinks.
+  Check if it's already upstream (`git diff`) — usually it's a subset → discard.
+  Genuinely new? Lift it into the repo the right way (a `conf.d/*.zsh`, a `link`
+  line), don't just leave it.
+- **Teardown unlinks `~/.gitconfig`** → git forgets who you are mid-migration.
+  Either relink first, or commit with `git -c user.email=… -c user.name=…`.
+- **Manual symlinks pointing *outside* the repo** (old vendored skills, hand-made
+  links) teardown can't see — it only tracks links *into* `~/dotfiles`. Sweep
+  `~/.claude`, `~/.agents` by hand if an old setup put them there.
+- **Per-machine tooling** (node via nvm, etc.) is orthogonal — migrate it
+  separately; don't let it ride in the dotfiles reset.
+
 ## Adding things
 
 | Want | Do |
