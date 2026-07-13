@@ -217,6 +217,7 @@ exec zsh       # if shell config changed
 | New alias / shell tweak | edit `zsh/aliases.zsh` (or add `zsh/<tool>.zsh` with a guard) |
 | New app config | drop the file in a folder, add a `link` line in `scripts/setup.sh`, re-run it |
 | New SSH host | add a `Host` block + `# deploy:` marker to `ssh/config`, run `setup-ssh-keys.sh <host>` |
+| Node on a dev box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: **mac** `brew install node` · **linux** `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
 | Machine-specific bits | `~/.config/zsh/conf.d/local.zsh` — auto-sourced, gitignored |
 
 ## Teardown

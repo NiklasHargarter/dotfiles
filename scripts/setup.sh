@@ -34,11 +34,11 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install zsh eza ripgrep curl git fzf fd wget node neovim ast-grep gh zellij
+    brew install zsh eza ripgrep curl git fzf fd neovim zellij bat jq btop zoxide
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
-    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find neovim wget \
-        nodejs npm gh python3
+    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find neovim python3 \
+        bat jq btop zoxide
 
     if ! command -v zellij >/dev/null; then
         mkdir -p ~/.local/bin
@@ -61,6 +61,7 @@ link zsh/p10k.zsh                 ~/.config/zsh/.p10k.zsh
 link zsh/aliases.zsh              ~/.config/zsh/conf.d/aliases.zsh
 link zsh/vpn.zsh                  ~/.config/zsh/conf.d/vpn.zsh
 link zsh/zellij.zsh               ~/.config/zsh/conf.d/zellij.zsh
+link zsh/zoxide.zsh               ~/.config/zsh/conf.d/zoxide.zsh
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json

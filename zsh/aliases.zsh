@@ -12,3 +12,7 @@ alias tree='eza --tree'
 
 alias v='nvim'
 alias g='git'
+
+# Debian names bat/fd differently — alias back to the normal names when present.
+command -v batcat >/dev/null && alias bat='batcat'
+command -v fdfind >/dev/null && alias fd='fdfind'
