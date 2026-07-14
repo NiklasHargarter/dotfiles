@@ -34,11 +34,23 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install zsh eza ripgrep curl git fzf fd neovim zellij bat jq btop zoxide
+    brew install zsh eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
-    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find neovim python3 \
-        bat jq btop zoxide
+    # No apt `neovim` (0.9, too old for this config's LSP API) — tarball below.
+    # No apt `nodejs`/`npm` either (ancient) — NodeSource LTS below. mason's LSP
+    # servers are npm packages, so a modern node is required, not optional.
+    # build-essential gives treesitter + telescope-fzf-native a C compiler.
+    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find python3 \
+        bat jq btop zoxide build-essential
+
+    # Modern Node LTS via NodeSource (apt-managed, stays current on upgrade)
+    if ! command -v node >/dev/null; then
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    else
+        skip "node already installed ($(node --version))"
+    fi
 
     if ! command -v zellij >/dev/null; then
         mkdir -p ~/.local/bin
@@ -49,6 +61,25 @@ elif [[ "$OS" == "Linux" ]]; then
     else
         skip "zellij already installed"
     fi
+
+    # Latest Neovim from the official prebuilt tarball (apt's is years behind).
+    mkdir -p ~/.local/bin
+    curl -fsSLo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+    rm -rf ~/.local/nvim && mkdir -p ~/.local/nvim
+    tar -xf /tmp/nvim.tar.gz -C ~/.local/nvim --strip-components=1
+    ln -sfn ~/.local/nvim/bin/nvim ~/.local/bin/nvim
+    rm /tmp/nvim.tar.gz
+fi
+
+# ── 1b. Rust toolchain ──────────────────────────────────────────────────────────
+# rustup gives rustc/cargo/rustfmt (fixes nvim's Rust LSP + format-on-save, and
+# is the "annoying when missing" toolchain). --no-modify-path so it never edits
+# the symlinked ~/.zshenv; zsh/rust.zsh puts ~/.cargo/bin on PATH instead.
+step "Installing Rust toolchain (rustup)"
+if ! command -v rustup >/dev/null && [[ ! -x "$HOME/.cargo/bin/rustup" ]]; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+else
+    skip "rustup already installed"
 fi
 
 # ── 2. Symlink config into place ────────────────────────────────────────────────
@@ -62,6 +93,7 @@ link zsh/aliases.zsh              ~/.config/zsh/conf.d/aliases.zsh
 link zsh/vpn.zsh                  ~/.config/zsh/conf.d/vpn.zsh
 link zsh/zellij.zsh               ~/.config/zsh/conf.d/zellij.zsh
 link zsh/zoxide.zsh               ~/.config/zsh/conf.d/zoxide.zsh
+link zsh/rust.zsh                 ~/.config/zsh/conf.d/rust.zsh
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json
@@ -70,7 +102,8 @@ link claude/statusline-context.py ~/.claude/statusline-context.py
 link claude/statusline-wrapper.sh ~/.claude/statusline-wrapper.sh
 link claude/link-vendor-skills.sh ~/.claude/scripts/link-vendor-skills.sh
 link ghostty/config               ~/.config/ghostty/config
-# nvim runs stock — no config linked. vpn/creds.template is a template, filled manually.
+link nvim                         ~/.config/nvim
+# vpn/creds.template is a template, filled manually.
 
 # ── 3. Default shell ───────────────────────────────────────────────────────────
 step "Setting zsh as default shell"

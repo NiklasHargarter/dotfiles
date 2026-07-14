@@ -37,7 +37,7 @@ SSH once your GitHub key exists.
 | Shell | Zsh + Oh My Zsh + Powerlevel10k | `zsh/` |
 | Terminal (mac) | [Ghostty](https://ghostty.org) | `ghostty/config` |
 | Multiplexer | [Zellij](https://zellij.dev) | `zsh/zellij.zsh` |
-| Editor | Neovim (stock — no plugin config) | installed, not configured |
+| Editor | [Neovim](https://neovim.io) — small hand-written Lua config | `nvim/` (docs in `nvim/README.md`) |
 | AI CLI | [Claude Code](https://claude.com/claude-code) + caveman + ponytail | `claude/` |
 | VCS | Git | `git/gitconfig` |
 | SSH | Modular, self-documenting config | `ssh/config` |
