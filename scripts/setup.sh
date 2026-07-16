@@ -100,7 +100,6 @@ link claude/settings.json         ~/.claude/settings.json
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/statusline-context.py ~/.claude/statusline-context.py
 link claude/statusline-wrapper.sh ~/.claude/statusline-wrapper.sh
-link claude/link-vendor-skills.sh ~/.claude/scripts/link-vendor-skills.sh
 link ghostty/config               ~/.config/ghostty/config
 link nvim                         ~/.config/nvim
 # vpn/creds.template is a template, filled manually.
