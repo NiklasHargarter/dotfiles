@@ -3,6 +3,15 @@
 # Safe to re-run — every step is idempotent.
 set -euo pipefail
 
+# Run as yourself, never with sudo: under sudo $HOME is /root, so every link
+# below silently lands in root's home and this machine gets nothing.
+if [[ "$EUID" -eq 0 ]]; then
+    echo "ERROR: don't run this with sudo — it escalates on its own where needed." >&2
+    echo "       Under sudo, \$HOME is $HOME, so the dotfiles would link into" >&2
+    echo "       root's home instead of yours. Re-run as: ./scripts/setup.sh" >&2
+    exit 1
+fi
+
 DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
 OS="$(uname -s)"
 
