@@ -3,7 +3,8 @@
 # backwards to the most recent main-chain assistant turn, and prints context
 # window usage: "ctx 18% · 36k/200k". Silent (exit 0, no output) if anything
 # is missing, so the wrapper can just append whatever it gets.
-import sys, json
+import sys
+import json
 
 LIMIT = 200000
 
@@ -22,9 +23,11 @@ for line in reversed(lines):
     m = e.get("message")
     if isinstance(m, dict) and m.get("usage") and not e.get("isSidechain"):
         u = m["usage"]
-        tot = (u.get("input_tokens", 0)
-               + u.get("cache_creation_input_tokens", 0)
-               + u.get("cache_read_input_tokens", 0))
+        tot = (
+            u.get("input_tokens", 0)
+            + u.get("cache_creation_input_tokens", 0)
+            + u.get("cache_read_input_tokens", 0)
+        )
         break
 
 if not tot:
@@ -32,5 +35,6 @@ if not tot:
 
 pct = tot * 100 // LIMIT
 color = "32" if pct < 50 else ("33" if pct < 80 else "31")
-sys.stdout.write("\033[01;%smctx %s%% · %sk/%sk\033[00m"
-                 % (color, pct, tot // 1000, LIMIT // 1000))
+sys.stdout.write(
+    "\033[01;%smctx %s%% · %sk/%sk\033[00m" % (color, pct, tot // 1000, LIMIT // 1000)
+)

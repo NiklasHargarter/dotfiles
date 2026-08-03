@@ -27,6 +27,8 @@ lazy-lock.json          exact plugin versions (COMMIT THIS)
 | telescope | telescope + fzf-native | fuzzy find files / grep / buffers |
 | oil | oil.nvim | file manager as an editable buffer |
 | which-key | which-key.nvim | popup listing keybindings |
+| flash | flash.nvim | label-jump anywhere on screen (`s`) + better f/t |
+| hardtime | hardtime.nvim | blocks hjkl/arrow spam, nags better motions |
 | completion | blink.cmp | autocomplete popup (LSP/buffer/path/snippets) |
 | lsp | lspconfig + mason | language servers: defs, hover, rename, diagnostics |
 | formatting | conform.nvim | format on save |
@@ -42,6 +44,8 @@ lazy-lock.json          exact plugin versions (COMMIT THIS)
 | `<C-d>` / `<C-u>` | half-page down/up (centred) |
 | `n` / `N` | next/prev search (centred) |
 | `J` / `K` (visual) | move selected lines down/up |
+| `s` | flash jump — type 2 chars, press the label |
+| `S` | flash treesitter — select a syntax node |
 | `<Esc>` | clear search highlight |
 
 **Files & search** (`<leader>f` = find)
