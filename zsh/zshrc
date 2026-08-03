@@ -1,4 +1,6 @@
-export PATH="$PATH:$HOME/.local/bin"
+# Prepend, not append: setup.sh installs tarball tools here (nvim, zellij) that
+# must win over an older apt/brew copy in /usr/bin.
+export PATH="$HOME/.local/bin:$PATH"
 
 # Ghostty shell integration. Our custom ZDOTDIR (~/.config/zsh, set in .zshenv)
 # clobbers Ghostty's auto-injection, so its ssh wrapper (ssh-terminfo, installs

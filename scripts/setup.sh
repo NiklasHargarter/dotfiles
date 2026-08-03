@@ -31,6 +31,15 @@ clone_if_missing() {
 # link <repo-relative-src> <target> — flat repo path → dotted system path.
 link() {
     local src="$DOTFILES/$1" dst="$2"
+    # A real file/dir squatting the target is never harmless: ln -sfn would
+    # delete a real file outright, and for a real dir it silently creates the
+    # link *inside* it (dst/name -> src), so the config never loads and nothing
+    # errors. Stop loudly and let the human decide what that file was.
+    if [[ -e "$dst" && ! -L "$dst" ]]; then
+        echo "ERROR: $dst exists and is not a symlink." >&2
+        echo "       Move or delete it, then re-run this script." >&2
+        exit 1
+    fi
     mkdir -p "$(dirname "$dst")"
     ln -sfn "$src" "$dst"
     info "linked ${dst/#$HOME/\~}"
@@ -43,7 +52,7 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install zsh eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide
+    brew install zsh eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
     # No apt `neovim` (0.9, too old for this config's LSP API) — tarball below.
@@ -78,6 +87,16 @@ elif [[ "$OS" == "Linux" ]]; then
     tar -xf /tmp/nvim.tar.gz -C ~/.local/nvim --strip-components=1
     ln -sfn ~/.local/nvim/bin/nvim ~/.local/bin/nvim
     rm /tmp/nvim.tar.gz
+
+    # tree-sitter CLI — nvim-treesitter's `main` branch compiles every parser by
+    # shelling out to `tree-sitter build`, a subcommand that only exists in CLI
+    # 0.22+. Ubuntu ships `tree-sitter-cli` 0.20.8, which has only `build-wasm`,
+    # so an apt copy on PATH fails every parser. Deliberately NOT guarded on
+    # `command -v`: the failure mode is a *stale* binary being present, so a
+    # presence check would skip exactly the machines that need this.
+    curl -fsSL https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-x64.gz \
+        | gunzip > ~/.local/bin/tree-sitter
+    chmod +x ~/.local/bin/tree-sitter
 fi
 
 # ── 1b. Rust toolchain ──────────────────────────────────────────────────────────
@@ -90,6 +109,22 @@ if ! command -v rustup >/dev/null && [[ ! -x "$HOME/.cargo/bin/rustup" ]]; then
 else
     skip "rustup already installed"
 fi
+
+# ── 1c. Sweep stale links ──────────────────────────────────────────────────────
+# A rework that moves or deletes a repo file leaves a dead symlink behind on
+# every machine set up under the old layout. Broken + points into ~/dotfiles =
+# ours and obsolete, so clear it here. This is why `git pull && setup.sh` is the
+# whole update procedure — no separate teardown ritual for a drifted machine.
+# Scope matches teardown.sh: shallow on ~, deeper only in the two config trees,
+# so we never walk node_modules or ~/.claude/projects.
+step "Sweeping stale links from past reworks"
+{ find ~ -maxdepth 1 -xtype l
+  find ~/.config ~/.claude -maxdepth 3 -xtype l 2>/dev/null || true
+} | while IFS= read -r f; do
+    case "$(readlink "$f")" in
+        *dotfiles/*) rm "$f" && info "removed dead ${f/#$HOME/\~}" ;;
+    esac
+done
 
 # ── 2. Symlink config into place ────────────────────────────────────────────────
 step "Linking dotfiles"
