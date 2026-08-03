@@ -15,7 +15,7 @@ lua/config/options.lua  editor settings (numbers, indent, clipboard…)
 lua/config/keymaps.lua  global keymaps not owned by a plugin
 lua/config/lazy.lua     bootstraps lazy.nvim, loads lua/plugins/
 lua/plugins/*.lua       one plugin per file
-lazy-lock.json          exact plugin versions (COMMIT THIS)
+lazy-lock.json          lazy.nvim's own bookkeeping (gitignored, see below)
 ```
 
 ## Plugins
@@ -120,8 +120,11 @@ in-editor chat later, install `olimorris/codecompanion.nvim` as a new file in
 
 ## Maintaining it
 
-- `:Lazy` — plugin manager UI. `:Lazy update` bumps versions → **commit the
-  changed `lazy-lock.json`** so every machine matches.
+- `:Lazy` — plugin manager UI. `:Lazy update` bumps versions on this machine.
 - `:checkhealth` — diagnoses missing dependencies.
-- A fresh machine reproduces your exact setup from `lazy-lock.json`. That
-  lockfile is the cure for version drift — keep it committed.
+- **What syncs across machines is `lua/plugins/*.lua`, not plugin commits.**
+  `lazy-lock.json` is gitignored: `:Lazy install` ignores it anyway (only
+  `:Lazy restore` reads it) and rewrites it after every install, so tracking it
+  bought nothing but a dirty tree blocking the next `git pull`. Each machine
+  runs whatever the specs currently resolve to. If you ever *do* need identical
+  commits everywhere, track it again and run `:Lazy restore` after pulling.
