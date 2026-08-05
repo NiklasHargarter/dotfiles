@@ -141,6 +141,7 @@ link zsh/rust.zsh                 ~/.config/zsh/conf.d/rust.zsh
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json
+link claude/skills                ~/.claude/skills
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/statusline-context.py ~/.claude/statusline-context.py
 link claude/statusline-wrapper.sh ~/.claude/statusline-wrapper.sh

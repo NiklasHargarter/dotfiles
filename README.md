@@ -166,7 +166,16 @@ falls back to `xterm-256color` on machines you don't. Nothing to run per host.
   Computed locally from the session transcript (`claude/statusline-context.py`) —
   no network. Keep context under ~60% for best results.
 
-Plugins auto-install on first launch from `claude/settings.json`.
+Two channels, both machine-independent:
+
+- **Plugins** (`caveman`, `ponytail`, …) auto-install on first launch from
+  `claude/settings.json` — a machine only needs that file.
+- **Own skills** live in `claude/skills/`, dir-linked to `~/.claude/skills`. A new
+  skill is live after `git pull`, no relink. Available in every project, not one repo.
+
+A skill is one dir with a `SKILL.md` (frontmatter `name` + `description`; the
+description is what makes Claude reach for it). Keep it generic — project specifics
+belong in that project's `CLAUDE.md`, which the skill reads.
 
 ### VPN (Cisco Secure Client)
 
@@ -226,6 +235,7 @@ symlinks point straight at the repo, so it's live immediately. Re-running
 |---|---|
 | New alias / shell tweak | edit `zsh/aliases.zsh` (or add `zsh/<tool>.zsh` with a guard) |
 | New app config | drop the file in a folder, add a `link` line in `scripts/setup.sh`, re-run it |
+| New Claude skill | `claude/skills/<name>/SKILL.md` — no `link` line, the dir is already linked |
 | New SSH host | add a `Host` block + `# deploy:` marker to `ssh/config`, run `setup-ssh-keys.sh <host>` |
 | Node on a dev box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: **mac** `brew install node` · **linux** `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
 | Machine-specific bits | `~/.config/zsh/conf.d/local.zsh` — auto-sourced, gitignored |
