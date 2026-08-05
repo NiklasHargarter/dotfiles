@@ -46,6 +46,14 @@ Goal: stop repeating `hjkl`.
 **nvim navigation** — `<space>f` telescope, `-` oil, flash `s`. Goal: stop leaving
 nvim to find a file.
 
+**Tools already installed, never once run** — `rg` instead of `grep`, `fd` instead
+of `find`, `bat` instead of `cat`, `btop` instead of `htop`, `jq` on any docker or
+API output. Goal: reach for the one that's already there.
+
+**Things that are already yours** — `cd` is zoxide, so `cd dotfiles` jumps from
+anywhere and `cdi` opens a picker. `Alt+c` fuzzy-jumps into a subdirectory. `Ctrl+r`
+searches history. Tab is a fuzzy menu. Goal: notice what you already have.
+
 ---
 
 ## Which layer does which job

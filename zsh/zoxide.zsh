@@ -4,5 +4,5 @@ command -v zoxide >/dev/null || return
 #   cd foo        jump to best-matched dir you've visited
 #   cd bar baz    match by fragments
 #   cdi           interactive fzf pick
-# `z` stays zellij's (see zellij.zsh); zoxide takes over `cd` instead of `z`.
+# Bound to `cd`, not `z`, so it works without having to remember a new verb.
 eval "$(zoxide init zsh --cmd cd)"
