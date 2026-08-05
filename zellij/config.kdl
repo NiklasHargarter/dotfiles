@@ -1,0 +1,20 @@
+// Zellij config — deltas from the defaults only.
+//
+// No `clear-defaults=true`: zellij's full keybinding set stays in force and the
+// binds below are layered on top. The previous version of this file was a 589
+// line verbatim dump of those same defaults, which hid the four lines that were
+// actually ours and went stale on every zellij release.
+//
+//   what is bound right now   Ctrl+o then c   (reads the live config, never stale)
+//   the full default set      zellij setup --dump-config
+
+keybinds {
+    shared_except "locked" {
+        // Direct session jumps. The session-manager (Ctrl+o w) is a picker: fine
+        // for a rare fourth session, too many keystrokes for a fixed set of three.
+        // Switching to an exited session resurrects it, cwds and commands intact.
+        bind "Alt 1" { SwitchSession name="main"; }
+        bind "Alt 2" { SwitchSession name="work"; }
+        bind "Alt 3" { SwitchSession name="project"; }
+    }
+}
