@@ -55,11 +55,11 @@ if [[ "$OS" == "Darwin" ]]; then
     brew install zsh eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
-    # No apt `neovim` (0.9, too old for this config's LSP API) — tarball below.
-    # No apt `nodejs`/`npm` either (ancient) — NodeSource LTS below. mason's LSP
-    # servers are npm packages, so a modern node is required, not optional.
-    # build-essential gives treesitter + telescope-fzf-native a C compiler.
-    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find python3 \
+    # nvim: python3-venv (mason PyPI pkgs, e.g. ruff), build-essential
+    #       (treesitter + telescope-fzf-native compile from C)
+    # Not from apt: neovim (0.9, too old for this config), nodejs (ancient) —
+    # tarball + NodeSource below.
+    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find python3 python3-venv \
         bat jq btop zoxide build-essential
 
     # Modern Node LTS via NodeSource (apt-managed, stays current on upgrade)
@@ -202,7 +202,13 @@ step "Pre-installing gitstatus binary"
 
 # ── 7. Claude Code ────────────────────────────────────────────────────────────
 step "Installing Claude Code"
-curl -fsSL https://claude.ai/install.sh | bash
+# Already there = leave it alone; Claude Code self-updates on launch, so
+# re-running the installer only re-downloads what it would fetch anyway.
+if command -v claude >/dev/null; then
+    skip "already installed ($(claude --version))"
+else
+    curl -fsSL https://claude.ai/install.sh | bash
+fi
 info "Plugins (caveman, ponytail, …) auto-install on first launch from settings.json"
 
 # ── 8. Switch dotfiles remote to SSH ──────────────────────────────────────────
