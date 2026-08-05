@@ -13,6 +13,12 @@ window-padding-balance = true
 background-opacity = 0.98
 background-blur-radius = 20
 
+# macOS Option key defaults to composing characters (ø, ∆, ¬) instead of sending
+# an ESC prefix, so Alt-bindings never reach the remote: zellij's Alt+arrow pane
+# focus and zsh's Alt+b / Alt+f word-jump both silently do nothing without this.
+# Accepted (and ignored) by Ghostty on Linux, so it stays in the shared config.
+macos-option-as-alt = true
+
 cursor-style = bar
 cursor-style-blink = true
 mouse-hide-while-typing = true

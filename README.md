@@ -35,7 +35,7 @@ SSH once your GitHub key exists.
 | Area | Tool | Config |
 |---|---|---|
 | Shell | Zsh + Oh My Zsh + Powerlevel10k | `zsh/` |
-| Terminal (mac) | [Ghostty](https://ghostty.org) | `ghostty/config` |
+| Terminal | [Ghostty](https://ghostty.org) | `ghostty/config` |
 | Multiplexer | [Zellij](https://zellij.dev) | `zsh/zellij.zsh` |
 | Editor | [Neovim](https://neovim.io) — small hand-written Lua config | `nvim/` (docs in `nvim/README.md`) |
 | AI CLI | [Claude Code](https://claude.com/claude-code) + caveman + ponytail | `claude/` |
@@ -53,7 +53,7 @@ SSH once your GitHub key exists.
 zsh/zshrc          → ~/.config/zsh/.zshrc
 zsh/aliases.zsh    → ~/.config/zsh/conf.d/aliases.zsh
 claude/settings.json → ~/.claude/settings.json
-ghostty/config     → ~/.config/ghostty/config   (macOS only)
+ghostty/config     → ~/.config/ghostty/config
 ```
 
 Files are named plainly in the repo (`zshrc`, not `.config/zsh/.zshrc`) and the
