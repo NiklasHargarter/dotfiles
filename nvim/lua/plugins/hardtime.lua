@@ -8,7 +8,8 @@ return {
   event = "VeryLazy",
   dependencies = { "MunifTanjim/nui.nvim" },
   opts = {
-    max_count = 4,        -- allow up to 4 repeats before it blocks (default 3)
+    max_count = 2,        -- repeats allowed before it blocks (default 3). Tightened
+                          -- from 4: the point is to make the motion uncomfortable.
     disable_mouse = false, -- keep the mouse usable; the point is keyboard motion, not asceticism
   },
 }
