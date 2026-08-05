@@ -13,11 +13,14 @@ alias g='git'
 # (zellij: Ctrl+o then c. nvim: press <space> and wait — which-key.)
 keys() { bindkey | fzf --height 60% --reverse --prompt 'zsh keys> '; }
 
-# This week's keybinding focus. `focus -e` to edit it on Monday.
-focus() {
-  [[ "$1" == "-e" ]] && { $EDITOR ~/dotfiles/FOCUS.md; return; }
-  command -v batcat >/dev/null && batcat --style=plain ~/dotfiles/FOCUS.md || cat ~/dotfiles/FOCUS.md
+# Reference docs. `focus` = this week's keybinding drill, `-e` to edit it on Monday.
+# `tools` = what the installed CLI tools do and how to drive them.
+_read_doc() {
+  [[ "$2" == "-e" ]] && { $EDITOR ~/dotfiles/$1; return; }
+  command -v batcat >/dev/null && batcat --style=plain ~/dotfiles/$1 || cat ~/dotfiles/$1
 }
+focus() { _read_doc FOCUS.md "$1"; }
+tools() { _read_doc TOOLS.md "$1"; }
 
 # Debian names bat/fd differently — alias back to the normal names when present.
 command -v batcat >/dev/null && alias bat='batcat'
