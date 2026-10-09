@@ -1,6 +1,6 @@
 -- conform.nvim — formats the buffer on save with the right tool per language.
 -- Tools come from mason (stylua, prettier, shfmt, clang-format) or the language
--- toolchain (ruff via its LSP, rustfmt from rustup). Toggle it off globally with
+-- toolchain (ruff via its LSP). Toggle it off globally with
 -- :FormatToggle when you want to save without reformatting.
 return {
   "stevearc/conform.nvim",
@@ -12,7 +12,6 @@ return {
       python = { "ruff_format" },
       cpp = { "clang-format" },
       c = { "clang-format" },
-      rust = { "rustfmt" },
       sh = { "shfmt" },
       yaml = { "prettier" },
       json = { "prettier" },

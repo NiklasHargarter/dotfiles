@@ -90,18 +90,7 @@ elif [[ "$OS" == "Linux" ]]; then
     chmod +x ~/.local/bin/tree-sitter
 fi
 
-# ── 1b. Rust toolchain ──────────────────────────────────────────────────────────
-# rustup gives rustc/cargo/rustfmt (fixes nvim's Rust LSP + format-on-save, and
-# is the "annoying when missing" toolchain). --no-modify-path so it never edits
-# the symlinked ~/.bashrc; bash/bashrc puts ~/.cargo/bin on PATH instead.
-step "Installing Rust toolchain (rustup)"
-if ! command -v rustup >/dev/null && [[ ! -x "$HOME/.cargo/bin/rustup" ]]; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-else
-    skip "rustup already installed"
-fi
-
-# ── 1c. Sweep stale links ──────────────────────────────────────────────────────
+# ── 1b. Sweep stale links ──────────────────────────────────────────────────────
 # A rework that moves or deletes a repo file leaves a dead symlink behind on
 # every machine set up under the old layout. Broken + points into ~/dotfiles =
 # ours and obsolete, so clear it here. This is why `git pull && setup.sh` is the
@@ -109,9 +98,11 @@ fi
 # Scope matches teardown.sh: shallow on ~, deeper only in the two config trees,
 # so we never walk node_modules or ~/.claude/projects.
 step "Sweeping stale links from past reworks"
-{ find ~ -maxdepth 1 -xtype l
-  find ~/.config ~/.claude -maxdepth 3 -xtype l 2>/dev/null || true
+# -type l + [[ -e ]], not -xtype: macOS's BSD find has no -xtype.
+{ find ~ -maxdepth 1 -type l
+  find ~/.config ~/.claude -maxdepth 3 -type l 2>/dev/null || true
 } | while IFS= read -r f; do
+    [[ -e "$f" ]] && continue
     case "$(readlink "$f")" in
         *dotfiles/*) rm "$f" && info "removed dead ${f/#$HOME/\~}" ;;
     esac

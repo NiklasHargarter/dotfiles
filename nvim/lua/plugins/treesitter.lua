@@ -17,7 +17,7 @@ return {
 
     local langs = {
       "lua", "vim", "vimdoc",              -- editing this config
-      "python", "cpp", "c", "rust",        -- your programming languages
+      "python", "cpp", "c",                -- your programming languages
       "bash", "yaml", "json", "toml",      -- config / devops
       "dockerfile", "markdown", "markdown_inline", "gitignore",
     }

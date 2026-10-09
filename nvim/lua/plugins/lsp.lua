@@ -28,7 +28,6 @@ return {
       pyright = {},                                -- python types
       ruff = {},                                   -- python lint + format
       clangd = {},                                 -- C / C++
-      rust_analyzer = {},                          -- rust
       bashls = {}, yamlls = {}, jsonls = {},       -- config / devops
       taplo = {}, dockerls = {}, marksman = {},    -- toml / docker / markdown
     }
