@@ -47,6 +47,19 @@ alias ll='eza -lah --group-directories-first --git'
 alias tree='eza --tree'
 alias v='nvim'
 alias g='git'
+# Git, Oh My Zsh names.
+alias gst='git status' ga='git add' gaa='git add --all' gc='git commit -v'
+alias gd='git diff' gds='git diff --staged' gb='git branch' gco='git checkout' gsw='git switch'
+alias gf='git fetch' gl='git pull' gp='git push' grb='git rebase'
+alias glo='git log --oneline --decorate' glog='git log --oneline --decorate --graph'
+# Branch/file completion for the aliases. bash-completion lazy-loads git's
+# completion, so load it now to get __git_complete.
+if declare -F _completion_loader >/dev/null && _completion_loader git 2>/dev/null; declare -F __git_complete >/dev/null; then
+  __git_complete g __git_main;      __git_complete ga _git_add;      __git_complete gd _git_diff
+  __git_complete gb _git_branch;    __git_complete gco _git_checkout; __git_complete gsw _git_switch
+  __git_complete gl _git_pull;      __git_complete gp _git_push;     __git_complete grb _git_rebase
+  __git_complete gf _git_fetch;     __git_complete glo _git_log;     __git_complete glog _git_log
+fi
 # Debian names bat/fd differently.
 command -v batcat >/dev/null && alias bat='batcat'
 command -v fdfind >/dev/null && alias fd='fdfind'

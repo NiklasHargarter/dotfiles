@@ -75,9 +75,11 @@ type is what teammates get; check scripts with `shellcheck`.
 ```
 ll         eza long listing (git-aware)
 v / g      nvim / git
+gst gd gco gsw gl gp …  Oh My Zsh git aliases, tab-complete branches
 cd         zoxide jump (cdi = fzf pick)
 keys       every readline binding, fuzzy-searchable
 focus      this week's FOCUS.md (focus -e to edit)
+tools      what the installed CLI tools do (TOOLS.md)
 ```
 
 | Keys | Action |
