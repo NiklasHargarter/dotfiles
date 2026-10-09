@@ -141,6 +141,7 @@ link zsh/rust.zsh                 ~/.config/zsh/conf.d/rust.zsh
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json
+link claude/CLAUDE.md             ~/.claude/CLAUDE.md
 link claude/skills                ~/.claude/skills
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/statusline-context.py ~/.claude/statusline-context.py
@@ -209,7 +210,6 @@ if command -v claude >/dev/null; then
 else
     curl -fsSL https://claude.ai/install.sh | bash
 fi
-info "Plugins (caveman, ponytail, …) auto-install on first launch from settings.json"
 
 # ── 8. Switch dotfiles remote to SSH ──────────────────────────────────────────
 step "Switching dotfiles remote to SSH"

@@ -38,7 +38,7 @@ SSH once your GitHub key exists.
 | Terminal | [Ghostty](https://ghostty.org) | `ghostty/config` |
 | Multiplexer | [Zellij](https://zellij.dev) | `zellij/config.kdl`, `zsh/zellij.zsh` |
 | Editor | [Neovim](https://neovim.io) — small hand-written Lua config | `nvim/` (docs in `nvim/README.md`) |
-| AI CLI | [Claude Code](https://claude.com/claude-code) + caveman + ponytail | `claude/` |
+| AI CLI | [Claude Code](https://claude.com/claude-code) | `claude/` |
 | VCS | Git | `git/gitconfig` |
 | SSH | Modular, self-documenting config | `ssh/config` |
 | VPN | Cisco Secure Client | `vpn/creds.template` |
@@ -157,8 +157,8 @@ falls back to `xterm-256color` on machines you don't. Nothing to run per host.
 
 ### Claude Code
 
-- `caveman` — compressed, no-fluff text output.
-- `ponytail` — laziest-that-works coding.
+- `claude/CLAUDE.md` → `~/.claude/CLAUDE.md`: global style rules (terse, minimal diffs).
+  No plugins — current models don't need them; add back in `settings.json` if one earns it.
 - Statusline shows repo · branch · git counts · context-window %:
   ```
   dotfiles | main | S:0 U:2 A:1 | ctx 24% · 48k/200k
@@ -166,12 +166,11 @@ falls back to `xterm-256color` on machines you don't. Nothing to run per host.
   Computed locally from the session transcript (`claude/statusline-context.py`) —
   no network. Keep context under ~60% for best results.
 
-Two channels, both machine-independent:
+Machine-independent:
 
-- **Plugins** (`caveman`, `ponytail`, …) auto-install on first launch from
-  `claude/settings.json` — a machine only needs that file.
 - **Own skills** live in `claude/skills/`, dir-linked to `~/.claude/skills`. A new
   skill is live after `git pull`, no relink. Available in every project, not one repo.
+  `claude/skills/synced/` is claude.ai's own sync target — gitignored.
 
 A skill is one dir with a `SKILL.md` (frontmatter `name` + `description`; the
 description is what makes Claude reach for it). Keep it generic — project specifics
