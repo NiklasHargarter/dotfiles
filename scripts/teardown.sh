@@ -26,10 +26,10 @@ while IFS= read -r f; do
     esac
     found=1
     if [[ -n "$DRY_RUN" ]]; then
-        info "[dry-run] would unlink ${f/#$HOME/\~} -> $target"
+        info "[dry-run] would unlink ~${f#"$HOME"} -> $target"
         continue
     fi
-    rm "$f" && info "unlinked ${f/#$HOME/\~}"
+    rm "$f" && info "unlinked ~${f#"$HOME"}"
 done < <(
     find "$HOME" -maxdepth 1 -type l
     find "$HOME/.config" "$HOME/.claude" -maxdepth 3 -type l 2>/dev/null

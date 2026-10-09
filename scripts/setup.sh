@@ -33,7 +33,7 @@ link() {
     fi
     mkdir -p "$(dirname "$dst")"
     ln -sfn "$src" "$dst"
-    info "linked ${dst/#$HOME/\~}"
+    info "linked ~${dst#"$HOME"}"
 }
 
 # ── 1. System packages ─────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ step "Sweeping stale links from past reworks"
 } | while IFS= read -r f; do
     [[ -e "$f" ]] && continue
     case "$(readlink "$f")" in
-        *dotfiles/*) rm "$f" && info "removed dead ${f/#$HOME/\~}" ;;
+        *dotfiles/*) rm "$f" && info "removed dead ~${f#"$HOME"}" ;;
     esac
 done
 
@@ -116,7 +116,7 @@ chmod 700 ~/.ssh 2>/dev/null || { mkdir -p ~/.ssh && chmod 700 ~/.ssh; }
 # once instead of having link() refuse. Anything worth keeping → ~/.bashrc.local
 for f in ~/.bashrc ~/.bash_profile; do
     if [[ -f "$f" && ! -L "$f" ]]; then
-        mv "$f" "$f.pre-dotfiles" && info "moved ${f/#$HOME/\~} → ${f/#$HOME/\~}.pre-dotfiles"
+        mv "$f" "$f.pre-dotfiles" && info "moved ~${f#"$HOME"} → ~${f#"$HOME"}.pre-dotfiles"
     fi
 done
 link bash/bashrc                  ~/.bashrc
