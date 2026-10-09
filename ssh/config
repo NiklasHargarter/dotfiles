@@ -29,6 +29,13 @@ Host mimir
     User hargarter
     IdentityFile ~/.ssh/id_ed25519_mimir
 
+# --- HS-Flensburg HPC (Slurm) ---
+# deploy: manual
+Host hpc3
+    HostName hpc3.hs-flensburg.de
+    User hargarter
+    IdentityFile ~/.ssh/id_ed25519_hpc3
+
 # --- SDU GitLab ---
 # deploy: manual
 Host gitlab.sdu.dk

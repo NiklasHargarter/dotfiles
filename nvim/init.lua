@@ -10,4 +10,9 @@
 
 require("config.options")
 require("config.keymaps")
-require("config.lazy")
+-- NVIM_MINIMAL=1 skips every plugin. options + keymaps are plugin-free, so this
+-- is the whole editor minus the extras — for machines where you only edit a
+-- file or two and don't want lazy cloning 15 repos (see scripts/setup-minimal.sh).
+if vim.env.NVIM_MINIMAL ~= "1" then
+  require("config.lazy")
+end

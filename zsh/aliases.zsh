@@ -1,9 +1,14 @@
 # Shell aliases — add yours here. Auto-sourced from conf.d by .zshrc.
 
-# eza (modern ls)
-alias ls='eza --group-directories-first'
-alias ll='eza -lah --group-directories-first --git'
-alias tree='eza --tree'
+# eza (modern ls) — guarded: without this, a machine that has no eza (any box
+# set up by setup-minimal.sh) gets a broken `ls` in every shell.
+if (( $+commands[eza] )); then
+  alias ls='eza --group-directories-first'
+  alias ll='eza -lah --group-directories-first --git'
+  alias tree='eza --tree'
+else
+  alias ll='ls -lah'
+fi
 
 alias v='nvim'
 alias g='git'
