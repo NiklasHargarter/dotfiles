@@ -2,8 +2,6 @@
 *.pem
 *.key
 # real VPN creds live at ~/.vpn-creds (only the template is tracked)
-# per-machine local overrides
-zsh/local.zsh
 # lazy.nvim rewrites this on every install/update; we sync specs, not commits
 nvim/lazy-lock.json
 # per-machine Claude Code permission grants, not config worth syncing

@@ -6,7 +6,7 @@ each top-level folder is a tool; an `install` script links its files to where
 the tool expects them.
 
 ```
-zsh/  git/  ssh/  claude/  ghostty/  vpn/  scripts/
+bash/  git/  ssh/  claude/  ghostty/  zellij/  nvim/  vpn/  scripts/
 ```
 
 ---
@@ -15,14 +15,14 @@ zsh/  git/  ssh/  claude/  ghostty/  vpn/  scripts/
 
 ```bash
 git clone https://github.com/niklashargarter/dotfiles.git ~/dotfiles
-~/dotfiles/scripts/setup.sh            # packages + symlinks + zsh + claude
+~/dotfiles/scripts/setup.sh            # packages + symlinks + shell + claude
 ~/dotfiles/scripts/setup-ssh-keys.sh   # generate & deploy SSH keys
-exec zsh                               # reload shell
+exec bash -l                           # reload shell
 ```
 
 `setup.sh` is idempotent — safe to re-run any time. It installs packages
-(brew on macOS, apt on Linux), symlinks every config into place, sets up
-Oh My Zsh + Powerlevel10k, installs Claude Code, and switches the repo remote
+(brew on macOS, apt on Linux), symlinks every config into place, makes bash
+the login shell, installs Claude Code, and switches the repo remote
 from HTTPS to SSH at the end.
 
 Clone over **HTTPS** first (no key needed yet); `setup.sh` flips the remote to
@@ -34,9 +34,9 @@ SSH once your GitHub key exists.
 
 | Area | Tool | Config |
 |---|---|---|
-| Shell | Zsh + Oh My Zsh + Powerlevel10k | `zsh/` |
+| Shell | Bash — one file, no framework | `bash/bashrc` |
 | Terminal | [Ghostty](https://ghostty.org) | `ghostty/config` |
-| Multiplexer | [Zellij](https://zellij.dev) | `zellij/config.kdl`, `zsh/zellij.zsh` |
+| Multiplexer | [Zellij](https://zellij.dev) | `zellij/config.kdl` |
 | Editor | [Neovim](https://neovim.io) — small hand-written Lua config | `nvim/` (docs in `nvim/README.md`) |
 | AI CLI | [Claude Code](https://claude.com/claude-code) | `claude/` |
 | VCS | Git | `git/gitconfig` |
@@ -50,39 +50,44 @@ SSH once your GitHub key exists.
 **Symlinks, no stow.** `setup.sh` holds a plain map — repo file → system path:
 
 ```
-zsh/zshrc          → ~/.config/zsh/.zshrc
-zsh/aliases.zsh    → ~/.config/zsh/conf.d/aliases.zsh
+bash/bashrc        → ~/.bashrc and ~/.bash_profile
 claude/settings.json → ~/.claude/settings.json
 ghostty/config     → ~/.config/ghostty/config
 ```
 
-Files are named plainly in the repo (`zshrc`, not `.config/zsh/.zshrc`) and the
+Files are named plainly in the repo (`gitconfig`, not `.gitconfig`) and the
 map puts them where they belong. To see or change what links where, read the
 `link …` block in `scripts/setup.sh`.
 
-**Modular zsh.** `.zshrc` auto-sources every `*.zsh` in `~/.config/zsh/conf.d/`.
-Each fragment guards its own dependency, so it's safe on any machine:
-
-```zsh
-# zsh/zellij.zsh
-command -v zellij >/dev/null || return   # no-op if zellij absent
-```
+**One shell file.** `bash/bashrc` is linked as both `~/.bashrc` and
+`~/.bash_profile`, so login (macOS, ssh) and non-login shells behave the same.
+No framework, no plugins: completion comes from the `bash-completion` package,
+history search and file picking from `fzf`. Everything updates with brew/apt.
+Bash is also what project scripts run in (`#!/usr/bin/env bash`), so what you
+type is what teammates get; check scripts with `shellcheck`.
 
 ---
 
 ## Daily usage
 
-### Aliases (`zsh/aliases.zsh`)
+### Shell (`bash/bashrc`)
 
 ```
-dot        cd ~/dotfiles
-dots       git status of the dotfiles repo
-dotpull    pull dotfiles
 ll         eza long listing (git-aware)
 v / g      nvim / git
+cd         zoxide jump (cdi = fzf pick)
+keys       every readline binding, fuzzy-searchable
+focus      this week's FOCUS.md (focus -e to edit)
 ```
 
-Add your own by editing `zsh/aliases.zsh` — it's already linked and auto-sourced.
+| Keys | Action |
+|---|---|
+| `Ctrl-W` / `Alt-Backspace` | delete word back |
+| `Ctrl-U` / `Ctrl-K` | delete to line start / end |
+| `Ctrl-A` / `Ctrl-E`, `Alt-B` / `Alt-F` | line start / end, word back / forward |
+| `Ctrl-Y` | paste last deleted text |
+| `Ctrl-R` / `Ctrl-T` / `Alt-C` | fzf history / file / dir |
+| `Tab` | complete (case-insensitive, lists on first press) |
 
 ### Zellij — persistent work sessions
 
@@ -91,9 +96,6 @@ you're dropped straight back into your `main` session.
 
 ```
 zj [name]   attach-or-create a session   (zj, zj build, zj scrape …)
-zjp         fzf-pick a running session
-zwork zproj shortcuts for zj work / zj project
-zl          list sessions
 ```
 
 Auto-resume: an **interactive SSH login auto-attaches** to `main`. Local shells,
@@ -206,7 +208,7 @@ y                              # accept banner
 ## Updating an existing machine
 
 ```bash
-cd ~/dotfiles && git pull && ./scripts/setup.sh && exec zsh
+cd ~/dotfiles && git pull && ./scripts/setup.sh && exec bash -l
 ```
 
 That's the whole procedure — same on a box updated yesterday and one untouched
@@ -222,7 +224,7 @@ symlinks point straight at the repo, so it's live immediately. Re-running
 
 - **A dirty tree blocks the pull.** Drift is live edits made *through* the
   symlinks. Check whether it's already upstream (`git diff`) — usually a subset
-  → discard. Genuinely new? Lift it into the repo properly (a `conf.d/*.zsh`, a
+  → discard. Genuinely new? Lift it into the repo properly (`bash/bashrc`, a
   `link` line), don't leave it loose.
 - **Links pointing *outside* the repo** (old vendored skills, hand-made links)
   are invisible to the sweep — it only tracks links *into* `~/dotfiles`. Sweep
@@ -232,12 +234,12 @@ symlinks point straight at the repo, so it's live immediately. Re-running
 
 | Want | Do |
 |---|---|
-| New alias / shell tweak | edit `zsh/aliases.zsh` (or add `zsh/<tool>.zsh` with a guard) |
+| New alias / shell tweak | edit `bash/bashrc` |
 | New app config | drop the file in a folder, add a `link` line in `scripts/setup.sh`, re-run it |
 | New Claude skill | `claude/skills/<name>/SKILL.md` — no `link` line, the dir is already linked |
 | New SSH host | add a `Host` block + `# deploy:` marker to `ssh/config`, run `setup-ssh-keys.sh <host>` |
 | Node on a dev box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: **mac** `brew install node` · **linux** `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
-| Machine-specific bits | `~/.config/zsh/conf.d/local.zsh` — auto-sourced, gitignored |
+| Machine-specific bits | `~/.bashrc.local` — sourced if present, not in the repo |
 
 ## Teardown
 
@@ -262,13 +264,13 @@ keys, shell history, and `~/.vpn-creds` are left alone.
 
 | What | Command |
 |---|---|
-| Oh My Zsh + theme + plugins | `rm -rf ~/.oh-my-zsh` |
+| Leftovers from the old zsh setup | `rm -rf ~/.oh-my-zsh ~/.config/zsh ~/.zsh_history ~/.zcompdump*` |
 | Neovim state/data (keeps binary) | `rm -rf ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim` |
 | Claude Code data ⚠ | `rm -rf ~/.claude` |
 | brew/apt packages (shared) | uninstall only if unused elsewhere |
 
 **Never remove without intent:** `~/.ssh/` keys, `~/.vpn-creds`,
-`~/.zsh_history`, the `~/dotfiles` repo.
+`~/.bash_history`, the `~/dotfiles` repo.
 
 **Or hand it to Claude** — paste this into Claude Code *on the target machine*
 to wipe it before a clean reinstall:
@@ -278,10 +280,10 @@ Wipe this machine's dotfiles footprint so I can re-run ~/dotfiles/scripts/setup.
 from a clean state. Rules:
 1. First run ~/dotfiles/scripts/teardown.sh (safe unlink) and show the output.
 2. Read setup.sh, inventory what it installs, and check what's actually present
-   here (packages, ~/.oh-my-zsh, nvim data, ~/.claude, npm globals, caches).
+   here (packages, nvim data, ~/.claude, npm globals, caches).
 3. Show a numbered removal plan grouped by risk. Do NOT run destructive commands
    (rm -rf, brew/apt uninstall, deleting ~/.claude) until I approve.
-4. Never touch: ~/.ssh/ keys, ~/.vpn-creds, ~/.zsh_history, ~/dotfiles.
+4. Never touch: ~/.ssh/ keys, ~/.vpn-creds, ~/.bash_history, ~/dotfiles.
 5. Shared tooling (brew/apt, ~/.npm-global) — ask per item before removing.
 6. After I approve, print the rebuild commands: setup.sh then setup-ssh-keys.sh.
 ```

@@ -95,7 +95,7 @@ TOML, Dockerfile, Markdown. Servers install automatically via **mason** on first
 launch — check status with `:Mason`.
 
 - **Rust formatting** uses `rustfmt`, which comes with the `rustup` toolchain
-  that `setup.sh` installs (not mason). `zsh/rust.zsh` puts `~/.cargo/bin` on PATH.
+  that `setup.sh` installs (not mason). `bash/bashrc` puts `~/.cargo/bin` on PATH.
 - Add a language: put its server name in the `servers` table in
   `lua/plugins/lsp.lua` and its treesitter parser in `lua/plugins/treesitter.lua`,
   then restart.

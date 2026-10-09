@@ -19,15 +19,6 @@ step()  { echo ""; echo "==> $*"; }
 info()  { echo "    $*"; }
 skip()  { echo "    [skip] $*"; }
 
-clone_if_missing() {
-    local repo="$1" dest="$2"
-    if [[ ! -d "$dest" ]]; then
-        git clone --depth=1 "$repo" "$dest"
-    else
-        skip "already present: $(basename "$dest")"
-    fi
-}
-
 # link <repo-relative-src> <target> — flat repo path → dotted system path.
 link() {
     local src="$DOTFILES/$1" dst="$2"
@@ -52,15 +43,15 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install zsh eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter
+    brew install bash bash-completion@2 shellcheck eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter ncdu gh
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
     # nvim: python3-venv (mason PyPI pkgs, e.g. ruff), build-essential
     #       (treesitter + telescope-fzf-native compile from C)
     # Not from apt: neovim (0.9, too old for this config), nodejs (ancient) —
     # tarball + NodeSource below.
-    sudo apt-get install -y zsh eza ripgrep curl git fzf fd-find python3 python3-venv \
-        bat jq btop zoxide build-essential
+    sudo apt-get install -y bash-completion shellcheck eza ripgrep curl git fzf fd-find python3 python3-venv \
+        bat jq btop zoxide ncdu gh build-essential
 
     # Modern Node LTS via NodeSource (apt-managed, stays current on upgrade)
     if ! command -v node >/dev/null; then
@@ -102,7 +93,7 @@ fi
 # ── 1b. Rust toolchain ──────────────────────────────────────────────────────────
 # rustup gives rustc/cargo/rustfmt (fixes nvim's Rust LSP + format-on-save, and
 # is the "annoying when missing" toolchain). --no-modify-path so it never edits
-# the symlinked ~/.zshenv; zsh/rust.zsh puts ~/.cargo/bin on PATH instead.
+# the symlinked ~/.bashrc; bash/bashrc puts ~/.cargo/bin on PATH instead.
 step "Installing Rust toolchain (rustup)"
 if ! command -v rustup >/dev/null && [[ ! -x "$HOME/.cargo/bin/rustup" ]]; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
@@ -130,14 +121,15 @@ done
 step "Linking dotfiles"
 chmod 700 ~/.ssh 2>/dev/null || { mkdir -p ~/.ssh && chmod 700 ~/.ssh; }
 
-link zsh/zshenv                   ~/.zshenv
-link zsh/zshrc                    ~/.config/zsh/.zshrc
-link zsh/p10k.zsh                 ~/.config/zsh/.p10k.zsh
-link zsh/aliases.zsh              ~/.config/zsh/conf.d/aliases.zsh
-link zsh/vpn.zsh                  ~/.config/zsh/conf.d/vpn.zsh
-link zsh/zellij.zsh               ~/.config/zsh/conf.d/zellij.zsh
-link zsh/zoxide.zsh               ~/.config/zsh/conf.d/zoxide.zsh
-link zsh/rust.zsh                 ~/.config/zsh/conf.d/rust.zsh
+# Distros ship a real ~/.bashrc (and sometimes ~/.bash_profile); keep it aside
+# once instead of having link() refuse. Anything worth keeping → ~/.bashrc.local
+for f in ~/.bashrc ~/.bash_profile; do
+    if [[ -f "$f" && ! -L "$f" ]]; then
+        mv "$f" "$f.pre-dotfiles" && info "moved ${f/#$HOME/\~} → ${f/#$HOME/\~}.pre-dotfiles"
+    fi
+done
+link bash/bashrc                  ~/.bashrc
+link bash/bashrc                  ~/.bash_profile
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json
@@ -152,14 +144,15 @@ link nvim                         ~/.config/nvim
 # vpn/creds.template is a template, filled manually.
 
 # ── 3. Default shell ───────────────────────────────────────────────────────────
-step "Setting zsh as default shell"
-ZSH_PATH="$(command -v zsh)"
-if [[ "$SHELL" != "$ZSH_PATH" ]]; then
-    grep -qF "$ZSH_PATH" /etc/shells || echo "$ZSH_PATH" | sudo tee -a /etc/shells
-    chsh -s "$ZSH_PATH"
-    info "Default shell → $ZSH_PATH"
+# macOS: brew's bash, not /bin/bash (3.2 from 2007). Linux: the system one.
+step "Setting bash as default shell"
+if [[ "$OS" == "Darwin" ]]; then BASH_PATH="$(brew --prefix)/bin/bash"; else BASH_PATH=/bin/bash; fi
+if [[ "$SHELL" != "$BASH_PATH" ]]; then
+    grep -qxF "$BASH_PATH" /etc/shells || echo "$BASH_PATH" | sudo tee -a /etc/shells
+    chsh -s "$BASH_PATH"
+    info "Default shell → $BASH_PATH"
 else
-    skip "already using zsh"
+    skip "already using $BASH_PATH"
 fi
 
 # ── 4. SSH include line ────────────────────────────────────────────────────────
@@ -174,34 +167,7 @@ else
     skip "Include line already present"
 fi
 
-# ── 5. Oh My Zsh ──────────────────────────────────────────────────────────────
-step "Installing Oh My Zsh"
-if [[ ! -d ~/.oh-my-zsh ]]; then
-    RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-else
-    skip "already installed"
-fi
-
-# OMZ installer replaces the .zshrc symlink with a real file (+ a .pre-oh-my-zsh
-# backup) — restore our symlink so the dotfiles version wins
-rm -f ~/.config/zsh/.zshrc ~/.config/zsh/.zshrc.pre-oh-my-zsh
-link zsh/zshrc ~/.config/zsh/.zshrc
-info "Restored .zshrc symlink"
-
-# ── 6. Powerlevel10k + plugins ────────────────────────────────────────────────
-step "Installing Powerlevel10k and plugins"
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-clone_if_missing https://github.com/romkatv/powerlevel10k.git             "$ZSH_CUSTOM/themes/powerlevel10k"
-clone_if_missing https://github.com/zsh-users/zsh-autosuggestions.git    "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-clone_if_missing https://github.com/zsh-users/zsh-completions.git        "$ZSH_CUSTOM/plugins/zsh-completions"
-clone_if_missing https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
-clone_if_missing https://github.com/Aloxaf/fzf-tab.git                   "$ZSH_CUSTOM/plugins/fzf-tab"
-
-# Pre-install gitstatus binary so p10k doesn't prompt/download on first shell open
-step "Pre-installing gitstatus binary"
-"$ZSH_CUSTOM/themes/powerlevel10k/gitstatus/install" -f
-
-# ── 7. Claude Code ────────────────────────────────────────────────────────────
+# ── 5. Claude Code ────────────────────────────────────────────────────────────
 step "Installing Claude Code"
 # Already there = leave it alone; Claude Code self-updates on launch, so
 # re-running the installer only re-downloads what it would fetch anyway.
@@ -211,7 +177,7 @@ else
     curl -fsSL https://claude.ai/install.sh | bash
 fi
 
-# ── 8. Switch dotfiles remote to SSH ──────────────────────────────────────────
+# ── 6. Switch dotfiles remote to SSH ──────────────────────────────────────────
 step "Switching dotfiles remote to SSH"
 SSH_REMOTE="git@github.com:niklashargarter/dotfiles.git"
 current_remote=$(git -C "$DOTFILES" remote get-url origin 2>/dev/null || true)
@@ -229,7 +195,7 @@ echo " Setup complete"
 echo "=============================="
 echo ""
 echo "Next steps:"
-echo "  1. Reload shell       exec zsh"
+echo "  1. Reload shell       exec bash -l"
 echo "  2. SSH keys           ./scripts/setup-ssh-keys.sh"
 echo "  3. VPN credentials    cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds"
 echo "                        (then edit ~/.vpn-creds with your real values)"

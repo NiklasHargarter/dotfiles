@@ -4,7 +4,6 @@
 # For a deeper wipe (tooling, caches, per-machine cruft) see the README.
 set -euo pipefail
 
-OS="$(uname -s)"
 step() { echo ""; echo "==> $*"; }
 info() { echo "    $*"; }
 skip() { echo "    [skip] $*"; }
@@ -37,9 +36,6 @@ done < <(
 )
 [[ "$found" == 0 ]] && skip "no dotfiles symlinks found on this machine"
 
-# OMZ may have left a real .zshrc + backup where our symlink was
-[[ -z "$DRY_RUN" ]] && rm -f ~/.config/zsh/.zshrc ~/.config/zsh/.zshrc.pre-oh-my-zsh 2>/dev/null || true
-
 step "Removing now-empty config dirs"
 if [[ -n "$DRY_RUN" ]]; then
     skip "[dry-run] skipping dir prune"
@@ -61,6 +57,6 @@ if [[ -f "$SSH_CONF" ]] && grep -qF "Include ~/.config/ssh/config" "$SSH_CONF"; 
 fi
 
 echo ""
-echo "Dotfiles unlinked. Config is gone; installed tooling (zsh, omz, nvim,"
+echo "Dotfiles unlinked. Config is gone; installed tooling (nvim,"
 echo "claude, brew/apt packages) is untouched — see the Teardown section of"
 echo "the README for a full per-machine wipe, including a prompt to hand Claude."

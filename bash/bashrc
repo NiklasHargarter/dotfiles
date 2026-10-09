@@ -1,0 +1,89 @@
+# Linked as both ~/.bashrc and ~/.bash_profile, so login shells (macOS, ssh)
+# and plain interactive shells read the same file.
+# shellcheck disable=SC1090,SC1091,SC2139  # dynamic sources, define-time alias paths are intended
+
+# ── Environment (every shell) ─────────────────────────────────────────────────
+[[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+[[ -d "$HOME/.cargo/bin" ]] && PATH="$HOME/.cargo/bin:$PATH"
+# Last = first on PATH: setup.sh puts tarball tools (nvim, zellij) here that
+# must win over an older apt/brew copy.
+PATH="$HOME/.local/bin:$PATH"
+export PATH
+export EDITOR=nvim
+
+[[ $- == *i* ]] || return   # rest is interactive only
+
+# ── History ───────────────────────────────────────────────────────────────────
+HISTSIZE=50000
+HISTFILESIZE=50000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend checkwinsize globstar
+# Write each command as it runs, so new tabs see history from open ones.
+PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+
+# ── Completion ────────────────────────────────────────────────────────────────
+for f in /opt/homebrew/etc/profile.d/bash_completion.sh /usr/share/bash-completion/bash_completion; do
+  [[ -r $f ]] && { source "$f"; break; }
+done
+bind 'set completion-ignore-case on'
+bind 'set show-all-if-ambiguous on'
+bind 'set colored-stats on'
+bind 'set mark-symlinked-directories on'
+
+# ── Prompt: dir (branch) $ ────────────────────────────────────────────────────
+__branch() { local b; b=$(git branch --show-current 2>/dev/null) && [[ -n $b ]] && printf ' (%s)' "$b"; }
+PS1='\[\e[1;34m\]\w\[\e[0;33m\]$(__branch)\[\e[0m\] \$ '
+
+# ── Tools ─────────────────────────────────────────────────────────────────────
+# fzf: Ctrl-R history, Ctrl-T files, Alt-C dirs. `fzf --bash` needs 0.48+;
+# older apt builds ship the same script under doc/.
+if fzf --bash >/dev/null 2>&1; then eval "$(fzf --bash)"
+else source /usr/share/doc/fzf/examples/key-bindings.bash 2>/dev/null; fi
+# zoxide as `cd`: frecency jump, falls back to real cd. `cdi` = fzf pick.
+command -v zoxide >/dev/null && eval "$(zoxide init bash --cmd cd)"
+
+# ── Aliases ───────────────────────────────────────────────────────────────────
+alias ls='eza --group-directories-first'
+alias ll='eza -lah --group-directories-first --git'
+alias tree='eza --tree'
+alias v='nvim'
+alias g='git'
+# Debian names bat/fd differently.
+command -v batcat >/dev/null && alias bat='batcat'
+command -v fdfind >/dev/null && alias fd='fdfind'
+
+# Every active readline binding, fuzzy-searchable. \C-x = Ctrl+x, \e = Alt.
+keys() { bind -p | grep -v 'not bound' | fzf --height 60% --reverse --prompt 'bash keys> '; }
+
+# Reference docs. `focus` = this week's keybinding drill, `tools` = what the
+# installed CLI tools do. `-e` on either to edit.
+_read_doc() {
+  [[ $2 == -e ]] && { $EDITOR ~/dotfiles/"$1"; return; }
+  bat --style=plain ~/dotfiles/"$1" 2>/dev/null || cat ~/dotfiles/"$1"
+}
+focus() { _read_doc FOCUS.md "$1"; }
+tools() { _read_doc TOOLS.md "$1"; }
+
+# Cisco VPN, only where the client is installed.
+for vpn in /opt/cisco/secureclient/bin/vpn /opt/cisco/anyconnect/bin/vpn; do
+  if [[ -x $vpn ]]; then
+    alias vpnup="$vpn -s < ~/.vpn-creds" vpndown="$vpn disconnect" vpnstat="$vpn stats"
+    break
+  fi
+done
+unset vpn f
+
+# ── Zellij ────────────────────────────────────────────────────────────────────
+if command -v zellij >/dev/null; then
+  # zj [name]: attach-or-create (default "main"). Inside a session, switch
+  # instead — `attach` there would nest one session in another.
+  zj() {
+    if [[ -n $ZELLIJ ]]; then zellij action switch-session "${1:-main}"
+    else zellij attach --create "${1:-main}"; fi
+  }
+  # Interactive SSH login drops straight into "main". Bypass: NO_ZELLIJ=1 ssh host
+  [[ -n $SSH_TTY && -z $ZELLIJ && -z $NO_ZELLIJ ]] && zellij attach --create main
+fi
+
+# Per-machine extras, not in the repo.
+[[ -r ~/.bashrc.local ]] && source ~/.bashrc.local
