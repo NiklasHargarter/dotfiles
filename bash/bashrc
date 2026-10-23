@@ -76,14 +76,17 @@ _read_doc() {
 focus() { _read_doc FOCUS.md "$1"; }
 tools() { _read_doc TOOLS.md "$1"; }
 
-# Cisco VPN, only where the client is installed.
-for vpn in /opt/cisco/secureclient/bin/vpn /opt/cisco/anyconnect/bin/vpn; do
-  if [[ -x $vpn ]]; then
-    alias vpnup="$vpn -s < ~/.vpn-creds" vpndown="$vpn disconnect" vpnstat="$vpn stats"
-    break
-  fi
-done
-unset vpn f
+# VPN via openconnect (speaks Cisco AnyConnect). ~/.vpn-creds: host, user, password, group.
+if command -v openconnect >/dev/null; then
+  vpnup() {
+    local host user pw group
+    { read -r host; read -r user; read -r pw; read -r group; } < ~/.vpn-creds
+    local cert=(); [[ -r ~/.vpn-cert.pem ]] && cert=(-c ~/.vpn-cert.pem)
+    printf '%s\n' "$pw" | sudo openconnect -b "${cert[@]}" --user="$user" --authgroup="$group" --passwd-on-stdin "$host"
+  }
+  alias vpndown='sudo pkill -INT openconnect' vpnstat='pgrep -lf openconnect'
+fi
+unset f
 
 # ── Zellij ────────────────────────────────────────────────────────────────────
 if command -v zellij >/dev/null; then

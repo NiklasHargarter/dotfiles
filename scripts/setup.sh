@@ -43,7 +43,7 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install bash bash-completion@2 shellcheck eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter ncdu gh
+    brew install bash bash-completion@2 shellcheck eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter ncdu gh openconnect
 elif [[ "$OS" == "Linux" ]]; then
     sudo apt-get update -qq
     # nvim: python3-venv (mason PyPI pkgs, e.g. ruff), build-essential
@@ -51,7 +51,7 @@ elif [[ "$OS" == "Linux" ]]; then
     # Not from apt: neovim (0.9, too old for this config), nodejs (ancient) —
     # tarball + NodeSource below.
     sudo apt-get install -y bash-completion shellcheck eza ripgrep curl git fzf fd-find python3 python3-venv \
-        bat jq btop zoxide ncdu gh build-essential
+        bat jq btop zoxide ncdu gh build-essential openconnect
 
     # Modern Node LTS via NodeSource (apt-managed, stays current on upgrade)
     if ! command -v node >/dev/null; then

@@ -41,7 +41,7 @@ SSH once your GitHub key exists.
 | AI CLI | [Claude Code](https://claude.com/claude-code) | `claude/` |
 | VCS | Git | `git/gitconfig` |
 | SSH | Modular, self-documenting config | `ssh/config` |
-| VPN | Cisco Secure Client | `vpn/creds.template` |
+| VPN | [OpenConnect](https://www.infradead.org/openconnect/) (AnyConnect-compatible) | `vpn/creds.template` |
 
 ---
 
@@ -180,30 +180,39 @@ A skill is one dir with a `SKILL.md` (frontmatter `name` + `description`; the
 description is what makes Claude reach for it). Keep it generic — project specifics
 belong in that project's `CLAUDE.md`, which the skill reads.
 
-### VPN (Cisco Secure Client)
+### VPN (OpenConnect)
 
-Aliases load only if the Cisco binary exists (`/opt/cisco/{secureclient,anyconnect}/bin/vpn`).
+Aliases load only if `openconnect` is installed. Connecting needs `sudo`.
 
 ```bash
 cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds
 # then edit ~/.vpn-creds — gitignored, never committed
 ```
 
-`~/.vpn-creds` is fed to the client line by line:
+`~/.vpn-creds`, one value per line:
 
 ```
-connect your-vpn-gateway.com   # gateway host
-0                              # profile index (first)
+your-vpn-gateway.com   # gateway host
 YOUR_USERNAME
 YOUR_PASSWORD
-y                              # accept banner
+YOUR_GROUP             # auth group, as listed in the GROUP: prompt
+```
+
+If the gateway wants a client certificate ("Certificate Validation Failure"),
+export it from the keychain to `~/.vpn-cert.pem` (cert + unencrypted key);
+`vpnup` picks it up. macOS writes legacy RC2 PKCS#12, hence `-legacy`:
+
+```bash
+security export -t identities -f pkcs12 -P "" -o /tmp/vpn.p12
+(umask 077; openssl pkcs12 -legacy -in /tmp/vpn.p12 -nodes -passin pass: -out ~/.vpn-cert.pem)
+rm /tmp/vpn.p12
 ```
 
 | Alias | Action |
 |---|---|
-| `vpnup` | connect with saved creds |
+| `vpnup` | connect in the background with saved creds |
 | `vpndown` | disconnect |
-| `vpnstat` | connection stats |
+| `vpnstat` | show the running connection |
 
 ---
 
