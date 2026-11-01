@@ -52,7 +52,7 @@ API output. Goal: reach for the one that's already there.
 
 **Things that are already yours** — `cd` is zoxide, so `cd dotfiles` jumps from
 anywhere and `cdi` opens a picker. `Alt+c` fuzzy-jumps into a subdirectory. `Ctrl+r`
-searches history. `cd **<Tab>` fuzzy-completes. Goal: notice what you already have.
+searches history. Tab is a fuzzy menu. Goal: notice what you already have.
 
 ---
 
@@ -75,7 +75,7 @@ Session = context. Tab = task. Pane = two things at once.
 
 ## Look it up
 
-- **bash** — `keys`
+- **zsh** — `keys`
 - **zellij** — `Ctrl+o` then `c`
 - **nvim** — press `<space>` and wait (which-key)
 

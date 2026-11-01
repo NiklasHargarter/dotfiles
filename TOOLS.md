@@ -141,7 +141,7 @@ Pair with `-r` whenever the result goes into a variable, or you get quotes in it
 
 ## zoxide — jump to directories
 
-Already installed as your `cd` (`bash/bashrc`). It remembers every directory you
+Already installed as your `cd` (`zsh/zshrc`). It remembers every directory you
 visit and ranks by *frecency* — frequency plus recency.
 
 ```
@@ -149,7 +149,7 @@ cd dotfiles          jump from anywhere, no path needed
 cd nv cfg            match by multiple fragments
 cd ~/some/real/path  still a normal cd — falls through when the path exists
 cdi                  fzf picker over your ranked dirs
-cd -                 previous dir (plain bash, still works)
+cd -                 previous dir (plain zsh, still works)
 zoxide query -ls     see the ranking it has built for you
 ```
 
@@ -162,13 +162,14 @@ since you installed it.
 
 A filter that turns any list into an interactive picker. Two ways to use it.
 
-**As keybindings** (already wired in `bash/bashrc`):
+**As keybindings** (already wired in `zsh/zshrc`):
 
 ```
 Ctrl+r      search shell history       ← replaces ↑↑↑
 Alt+c       fuzzy-cd into a subdir
 Ctrl+t      insert a file path         ← zellij's tab mode eats this one
 **<Tab>     fuzzy-complete after any command:  cd **<Tab>,  git checkout **<Tab>
+Tab         every completion is a fuzzy menu (fzf-tab)
 ```
 
 **As a pipe**, which is where it gets good:

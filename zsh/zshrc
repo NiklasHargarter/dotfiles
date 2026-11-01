@@ -1,0 +1,70 @@
+# Linked as ~/.zshrc. Stock Oh My Zsh + p10k; only personal bits live here.
+source ~/.zshenv   # macOS path_helper reorders PATH after .zshenv; put it back.
+
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+HYPHEN_INSENSITIVE="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+zstyle ':omz:update' mode disabled   # setup.sh updates it
+
+plugins=(
+	git
+	fzf
+	eza
+	zsh-autosuggestions
+	zsh-completions
+	fzf-tab
+	zsh-syntax-highlighting
+)
+
+source $ZSH/oh-my-zsh.sh
+source ~/.p10k.zsh
+
+# zoxide as `cd`: frecency jump, falls back to real cd. `cdi` = fzf pick.
+command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
+
+alias ls='eza --group-directories-first'
+alias ll='eza -lah --group-directories-first --git'
+alias tree='eza --tree'
+alias v='nvim'
+alias g='git'
+# Debian names bat/fd differently.
+command -v batcat >/dev/null && alias bat='batcat'
+command -v fdfind >/dev/null && alias fd='fdfind'
+
+# Every active zsh binding, fuzzy-searchable. ^X = Ctrl+x, ^[x = Alt+x.
+keys() { bindkey | fzf --height 60% --reverse --prompt 'zsh keys> '; }
+
+# Reference docs. `focus` = this week's keybinding drill, `tools` = what the
+# installed CLI tools do. `-e` on either to edit.
+_read_doc() {
+  [[ $2 == -e ]] && { $EDITOR ~/dotfiles/$1; return; }
+  bat --style=plain ~/dotfiles/$1 2>/dev/null || cat ~/dotfiles/$1
+}
+focus() { _read_doc FOCUS.md "$1"; }
+tools() { _read_doc TOOLS.md "$1"; }
+
+# VPN via openconnect (speaks Cisco AnyConnect). ~/.vpn-creds: host, user, password, group.
+if command -v openconnect >/dev/null; then
+  vpnup() {
+    local host user pw group
+    { read -r host; read -r user; read -r pw; read -r group; } < ~/.vpn-creds
+    local cert=(); [[ -r ~/.vpn-cert.pem ]] && cert=(-c ~/.vpn-cert.pem)
+    printf '%s\n' "$pw" | sudo openconnect -b "${cert[@]}" --user="$user" --authgroup="$group" --passwd-on-stdin "$host"
+  }
+  alias vpndown='sudo pkill -INT openconnect' vpnstat='pgrep -lf openconnect'
+fi
+
+if command -v zellij >/dev/null; then
+  # zj [name]: attach-or-create (default "main"). Inside a session, switch
+  # instead — `attach` there would nest one session in another.
+  zj() {
+    if [[ -n $ZELLIJ ]]; then zellij action switch-session "${1:-main}"
+    else zellij attach --create "${1:-main}"; fi
+  }
+  # Interactive SSH login drops straight into "main". Bypass: NO_ZELLIJ=1 ssh host
+  [[ -n $SSH_TTY && -z $ZELLIJ && -z $NO_ZELLIJ ]] && zellij attach --create main
+fi
+
+# Per-machine extras, not in the repo.
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local

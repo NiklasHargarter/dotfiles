@@ -1,0 +1,6 @@
+# Linked as ~/.zshenv: every zsh, including `ssh host cmd`.
+typeset -U path fpath
+# Tarball tools in ~/.local/bin must win over an older apt/brew copy.
+path=(~/.local/bin /opt/homebrew/{bin,sbin}(N) $path)
+fpath=(/opt/homebrew/share/zsh/site-functions(N) $fpath)
+export EDITOR=nvim

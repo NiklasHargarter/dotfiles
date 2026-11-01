@@ -1,12 +1,12 @@
 # dotfiles
 
 My personal config for macOS (desktop) and Linux (headless servers). One repo,
-one command to bring a new machine to a working state. Flat and symlink-based —
-each top-level folder is a tool; an `install` script links its files to where
-the tool expects them.
+one command gets a new machine far enough for Claude Code to finish the job.
+Flat and symlink-based — each top-level folder is a tool; `scripts/setup.sh`
+links its files to where the tool expects them.
 
 ```
-bash/  git/  ssh/  claude/  ghostty/  zellij/  nvim/  vpn/  scripts/
+zsh/  git/  ssh/  claude/  ghostty/  zellij/  nvim/  vpn/  scripts/
 ```
 
 ---
@@ -14,19 +14,20 @@ bash/  git/  ssh/  claude/  ghostty/  zellij/  nvim/  vpn/  scripts/
 ## Bootstrap a new machine
 
 ```bash
-git clone https://github.com/niklashargarter/dotfiles.git ~/dotfiles
-~/dotfiles/scripts/setup.sh            # packages + symlinks + shell + claude
-~/dotfiles/scripts/setup-ssh-keys.sh   # generate & deploy SSH keys
-exec bash -l                           # reload shell
+bash <(curl -fsSL https://raw.githubusercontent.com/niklashargarter/dotfiles/main/scripts/bootstrap.sh)
 ```
 
-`setup.sh` is idempotent — safe to re-run any time. It installs packages
-(brew on macOS, apt on Linux), symlinks every config into place, makes bash
-the login shell, installs Claude Code, and switches the repo remote
-from HTTPS to SSH at the end.
+`bootstrap.sh` needs you at the keyboard for sudo and the Claude login. It
+installs git (Homebrew on macOS), clones the repo over HTTPS, installs Claude
+Code, runs `setup.sh`, and opens Claude with "Set up this machine."
 
-Clone over **HTTPS** first (no key needed yet); `setup.sh` flips the remote to
-SSH once your GitHub key exists.
+Claude then follows [`CLAUDE.md`](CLAUDE.md): it fixes whatever `setup.sh`
+tripped on, verifies the result, and walks you through only what needs you —
+SSH keys, `gh auth login`, VPN credentials. Secrets stay out of the conversation.
+
+`setup.sh` is idempotent. It installs packages (brew on macOS, apt on Linux),
+symlinks every config, clones Oh My Zsh and its plugins, makes zsh the login shell, and
+switches the repo remote from HTTPS to SSH.
 
 ---
 
@@ -34,7 +35,7 @@ SSH once your GitHub key exists.
 
 | Area | Tool | Config |
 |---|---|---|
-| Shell | Bash — one file, no framework | `bash/bashrc` |
+| Shell | Zsh + Oh My Zsh + Powerlevel10k | `zsh/` |
 | Terminal | [Ghostty](https://ghostty.org) | `ghostty/config` |
 | Multiplexer | [Zellij](https://zellij.dev) | `zellij/config.kdl` |
 | Editor | [Neovim](https://neovim.io) — small hand-written Lua config | `nvim/` (docs in `nvim/README.md`) |
@@ -50,7 +51,7 @@ SSH once your GitHub key exists.
 **Symlinks, no stow.** `setup.sh` holds a plain map — repo file → system path:
 
 ```
-bash/bashrc        → ~/.bashrc and ~/.bash_profile
+zsh/zshrc          → ~/.zshrc
 claude/settings.json → ~/.claude/settings.json
 ghostty/config     → ~/.config/ghostty/config
 ```
@@ -59,25 +60,23 @@ Files are named plainly in the repo (`gitconfig`, not `.gitconfig`) and the
 map puts them where they belong. To see or change what links where, read the
 `link …` block in `scripts/setup.sh`.
 
-**One shell file.** `bash/bashrc` is linked as both `~/.bashrc` and
-`~/.bash_profile`, so login (macOS, ssh) and non-login shells behave the same.
-No framework, no plugins: completion comes from the `bash-completion` package,
-history search and file picking from `fzf`. Everything updates with brew/apt.
-Bash is also what project scripts run in (`#!/usr/bin/env bash`), so what you
-type is what teammates get; check scripts with `shellcheck`.
+**Stock Oh My Zsh + Powerlevel10k.** `zsh/zshrc` holds only the plugin list and
+personal bits; `zsh/p10k.zsh` is the generated config (`p10k configure` to change
+it). OMZ and plugins are plain clones updated by `setup.sh`. Project scripts stay
+`#!/usr/bin/env bash`; check them with `shellcheck`.
 
 ---
 
 ## Daily usage
 
-### Shell (`bash/bashrc`)
+### Shell (`zsh/zshrc`)
 
 ```
 ll         eza long listing (git-aware)
 v / g      nvim / git
 gst gd gco gsw gl gp …  Oh My Zsh git aliases, tab-complete branches
 cd         zoxide jump (cdi = fzf pick)
-keys       every readline binding, fuzzy-searchable
+keys       every zsh binding, fuzzy-searchable
 focus      this week's FOCUS.md (focus -e to edit)
 tools      what the installed CLI tools do (TOOLS.md)
 ```
@@ -89,7 +88,9 @@ tools      what the installed CLI tools do (TOOLS.md)
 | `Ctrl-A` / `Ctrl-E`, `Alt-B` / `Alt-F` | line start / end, word back / forward |
 | `Ctrl-Y` | paste last deleted text |
 | `Ctrl-R` / `Ctrl-T` / `Alt-C` | fzf history / file / dir |
-| `Tab` | complete (case-insensitive, lists on first press) |
+| `Tab` | fuzzy completion menu (fzf-tab), case-insensitive |
+| `→` | accept the grey autosuggestion |
+| `↑` / `↓` | history matching what's typed |
 
 ### Zellij — persistent work sessions
 
@@ -218,39 +219,21 @@ rm /tmp/vpn.p12
 
 ## Updating an existing machine
 
-```bash
-cd ~/dotfiles && git pull && ./scripts/setup.sh && exec bash -l
-```
-
-That's the whole procedure — same on a box updated yesterday and one untouched
-for a year. `setup.sh` is idempotent, sweeps dead links from old layouts before
-relinking, and refuses to clobber a real file that's squatting a link target.
-There's no separate migration path and no teardown step.
-
-Content-only change in an already-linked file needs nothing but `git pull` —
-symlinks point straight at the repo, so it's live immediately. Re-running
-`setup.sh` anyway is free.
-
-**Two things it can't do for you:**
-
-- **A dirty tree blocks the pull.** Drift is live edits made *through* the
-  symlinks. Check whether it's already upstream (`git diff`) — usually a subset
-  → discard. Genuinely new? Lift it into the repo properly (`bash/bashrc`, a
-  `link` line), don't leave it loose.
-- **Links pointing *outside* the repo** (old vendored skills, hand-made links)
-  are invisible to the sweep — it only tracks links *into* `~/dotfiles`. Sweep
-  `~/.claude`, `~/.agents` by hand if an old setup put them there.
+Tell Claude "update this machine" in `~/dotfiles`. It pulls, re-runs `setup.sh`,
+verifies, and reconciles local edits; `CLAUDE.md` has the procedure. By hand
+it's `git pull && ./scripts/setup.sh && exec zsh`.
 
 ## Adding things
 
 | Want | Do |
 |---|---|
-| New alias / shell tweak | edit `bash/bashrc` |
+| New alias / shell tweak | edit `zsh/zshrc` |
 | New app config | drop the file in a folder, add a `link` line in `scripts/setup.sh`, re-run it |
 | New Claude skill | `claude/skills/<name>/SKILL.md` — no `link` line, the dir is already linked |
 | New SSH host | add a `Host` block + `# deploy:` marker to `ssh/config`, run `setup-ssh-keys.sh <host>` |
 | Node on a dev box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: **mac** `brew install node` · **linux** `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
-| Machine-specific bits | `~/.bashrc.local` — sourced if present, not in the repo |
+| New step that needs a human | add it to the table in `CLAUDE.md` |
+| Machine-specific bits | `~/.zshrc.local` — sourced if present, not in the repo |
 
 ## Teardown
 
@@ -275,13 +258,13 @@ keys, shell history, and `~/.vpn-creds` are left alone.
 
 | What | Command |
 |---|---|
-| Leftovers from the old zsh setup | `rm -rf ~/.oh-my-zsh ~/.config/zsh ~/.zsh_history ~/.zcompdump*` |
+| Oh My Zsh and caches | `rm -rf ~/.oh-my-zsh ~/.zcompdump* ~/.cache/gitstatus` |
 | Neovim state/data (keeps binary) | `rm -rf ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim` |
 | Claude Code data ⚠ | `rm -rf ~/.claude` |
 | brew/apt packages (shared) | uninstall only if unused elsewhere |
 
 **Never remove without intent:** `~/.ssh/` keys, `~/.vpn-creds`,
-`~/.bash_history`, the `~/dotfiles` repo.
+`~/.zsh_history`, the `~/dotfiles` repo.
 
 **Or hand it to Claude** — paste this into Claude Code *on the target machine*
 to wipe it before a clean reinstall:
@@ -294,7 +277,7 @@ from a clean state. Rules:
    here (packages, nvim data, ~/.claude, npm globals, caches).
 3. Show a numbered removal plan grouped by risk. Do NOT run destructive commands
    (rm -rf, brew/apt uninstall, deleting ~/.claude) until I approve.
-4. Never touch: ~/.ssh/ keys, ~/.vpn-creds, ~/.bash_history, ~/dotfiles.
+4. Never touch: ~/.ssh/ keys, ~/.vpn-creds, ~/.zsh_history, ~/dotfiles.
 5. Shared tooling (brew/apt, ~/.npm-global) — ask per item before removing.
-6. After I approve, print the rebuild commands: setup.sh then setup-ssh-keys.sh.
+6. After I approve, print the rebuild step: bootstrap.sh.
 ```

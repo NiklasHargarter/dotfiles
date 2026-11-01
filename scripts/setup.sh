@@ -43,15 +43,19 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "ERROR: Homebrew not found. Install it first: https://brew.sh" >&2
         exit 1
     fi
-    brew install bash bash-completion@2 shellcheck eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter ncdu gh openconnect
+    brew install bash shellcheck eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter ncdu gh openconnect
 elif [[ "$OS" == "Linux" ]]; then
-    sudo apt-get update -qq
     # nvim: python3-venv (mason PyPI pkgs, e.g. ruff), build-essential
     #       (treesitter + telescope-fzf-native compile from C)
     # Not from apt: neovim (0.9, too old for this config), nodejs (ancient) —
     # tarball + NodeSource below.
-    sudo apt-get install -y bash-completion shellcheck eza ripgrep curl git fzf fd-find python3 python3-venv \
-        bat jq btop zoxide ncdu gh build-essential openconnect
+    pkgs=(zsh shellcheck eza ripgrep curl git fzf fd-find python3 python3-venv
+        bat jq btop zoxide ncdu gh build-essential openconnect)
+    # Only touch sudo when something is missing, so updates run without a TTY.
+    if ! dpkg -s "${pkgs[@]}" >/dev/null 2>&1; then
+        sudo apt-get update -qq
+        sudo apt-get install -y "${pkgs[@]}"
+    fi
 
     # Modern Node LTS via NodeSource (apt-managed, stays current on upgrade)
     if ! command -v node >/dev/null; then
@@ -112,15 +116,16 @@ done
 step "Linking dotfiles"
 chmod 700 ~/.ssh 2>/dev/null || { mkdir -p ~/.ssh && chmod 700 ~/.ssh; }
 
-# Distros ship a real ~/.bashrc (and sometimes ~/.bash_profile); keep it aside
-# once instead of having link() refuse. Anything worth keeping → ~/.bashrc.local
-for f in ~/.bashrc ~/.bash_profile; do
+# A real ~/.zshrc or ~/.zshenv may exist already; keep it aside once instead of
+# having link() refuse. Anything worth keeping → ~/.zshrc.local
+for f in ~/.zshrc ~/.zshenv; do
     if [[ -f "$f" && ! -L "$f" ]]; then
         mv "$f" "$f.pre-dotfiles" && info "moved ~${f#"$HOME"} → ~${f#"$HOME"}.pre-dotfiles"
     fi
 done
-link bash/bashrc                  ~/.bashrc
-link bash/bashrc                  ~/.bash_profile
+link zsh/zshrc                    ~/.zshrc
+link zsh/zshenv                   ~/.zshenv
+link zsh/p10k.zsh                 ~/.p10k.zsh
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json
@@ -134,19 +139,34 @@ link zellij/config.kdl            ~/.config/zellij/config.kdl
 link nvim                         ~/.config/nvim
 # vpn/creds.template is a template, filled manually.
 
-# ── 3. Default shell ───────────────────────────────────────────────────────────
-# macOS: brew's bash, not /bin/bash (3.2 from 2007). Linux: the system one.
-step "Setting bash as default shell"
-if [[ "$OS" == "Darwin" ]]; then BASH_PATH="$(brew --prefix)/bin/bash"; else BASH_PATH=/bin/bash; fi
-if [[ "$SHELL" != "$BASH_PATH" ]]; then
-    grep -qxF "$BASH_PATH" /etc/shells || echo "$BASH_PATH" | sudo tee -a /etc/shells
-    chsh -s "$BASH_PATH"
-    info "Default shell → $BASH_PATH"
+# ── 3. Oh My Zsh + plugins ─────────────────────────────────────────────────────
+# Plain clones rather than OMZ's installer, which fights the ~/.zshrc symlink.
+# Re-running setup.sh updates them all.
+step "Installing Oh My Zsh and plugins"
+sync() {
+    if [[ -d "$2" ]]; then git -C "$2" pull -q --ff-only
+    else git clone -q --depth 1 "https://github.com/$1.git" "$2"; fi
+    info "$1"
+}
+sync ohmyzsh/ohmyzsh ~/.oh-my-zsh
+sync romkatv/powerlevel10k ~/.oh-my-zsh/custom/themes/powerlevel10k
+for repo in Aloxaf/fzf-tab zsh-users/zsh-autosuggestions zsh-users/zsh-completions zsh-users/zsh-syntax-highlighting; do
+    sync "$repo" ~/.oh-my-zsh/custom/plugins/"${repo#*/}"
+done
+# Pre-install gitstatus so p10k doesn't download it on first shell open.
+~/.oh-my-zsh/custom/themes/powerlevel10k/gitstatus/install -f
+
+# ── 4. Default shell ───────────────────────────────────────────────────────────
+# /bin/zsh is on macOS and Debian alike, and already in /etc/shells.
+step "Setting zsh as default shell"
+if [[ "$SHELL" != /bin/zsh ]]; then
+    # chsh wants a password and hangs without a TTY, e.g. under an agent.
+    if [[ -t 0 ]]; then chsh -s /bin/zsh; else info "no TTY — run: chsh -s /bin/zsh"; fi
 else
-    skip "already using $BASH_PATH"
+    skip "already using /bin/zsh"
 fi
 
-# ── 4. SSH include line ────────────────────────────────────────────────────────
+# ── 5. SSH include line ────────────────────────────────────────────────────────
 step "Configuring SSH"
 SSH_CONF=~/.ssh/config
 touch "$SSH_CONF" && chmod 600 "$SSH_CONF"
@@ -156,16 +176,6 @@ if ! grep -qF "Include ~/.config/ssh/config" "$SSH_CONF"; then
     info "Include line added to ~/.ssh/config"
 else
     skip "Include line already present"
-fi
-
-# ── 5. Claude Code ────────────────────────────────────────────────────────────
-step "Installing Claude Code"
-# Already there = leave it alone; Claude Code self-updates on launch, so
-# re-running the installer only re-downloads what it would fetch anyway.
-if command -v claude >/dev/null; then
-    skip "already installed ($(claude --version))"
-else
-    curl -fsSL https://claude.ai/install.sh | bash
 fi
 
 # ── 6. Switch dotfiles remote to SSH ──────────────────────────────────────────
@@ -185,8 +195,5 @@ echo "=============================="
 echo " Setup complete"
 echo "=============================="
 echo ""
-echo "Next steps:"
-echo "  1. Reload shell       exec bash -l"
-echo "  2. SSH keys           ./scripts/setup-ssh-keys.sh"
-echo "  3. VPN credentials    cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds"
-echo "                        (then edit ~/.vpn-creds with your real values)"
+echo "Next: secrets and SSH keys. Run \`claude\` in ~/dotfiles and say"
+echo "\"Set up this machine.\" bootstrap.sh does this for you."
