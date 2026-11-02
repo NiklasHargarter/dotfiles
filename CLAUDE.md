@@ -23,11 +23,14 @@ command for the user to run in a second terminal, wait, then verify.
 
 | Step | Skip if | User runs | Verify |
 |---|---|---|---|
-| Sudo or login shell, if `setup.sh` reported needing them | `$SHELL` is `/bin/zsh` | `chsh -s /bin/zsh`, or `./scripts/setup.sh` for a sudo failure | `dscl . -read ~ UserShell` or `getent passwd $USER` |
+| Sudo or login shell, if `setup.sh` reported needing them | `$SHELL` is `/bin/zsh` | `chsh -s /bin/zsh`, then log out and back in on macOS (apps keep the old `SHELL` until then), or `./scripts/setup.sh` for a sudo failure | `dscl . -read ~ UserShell` or `getent passwd $USER` |
 | GitHub SSH key | `ssh -T git@github.com` greets them | `./scripts/setup-ssh-keys.sh github.com`, paste at github.com/settings/ssh/new | `ssh -T git@github.com` |
 | `gh` login | `gh auth status` passes | `gh auth login` | `gh auth status` |
 | Other SSH hosts | key exists at the host's `IdentityFile` | `./scripts/setup-ssh-keys.sh <host>`. Ask which of `ssh/config`'s hosts this machine needs; some need the VPN | `ssh -o BatchMode=yes <host> true` |
 | VPN, if this machine needs it | `~/.vpn-creds` exists | `cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds`, then edit it | file exists, mode 600; don't read it |
+
+SSH keys have a passphrase, so `git push` is the user's to run; `git pull` uses
+HTTPS and needs no key.
 
 Secrets never enter this conversation: don't ask for them, and don't read
 `~/.vpn-creds`, `~/.vpn-cert.pem` or private keys.

@@ -27,7 +27,7 @@ SSH keys, `gh auth login`, VPN credentials. Secrets stay out of the conversation
 
 `setup.sh` is idempotent. It installs packages (brew on macOS, apt on Linux),
 symlinks every config, clones Oh My Zsh and its plugins, makes zsh the login shell, and
-switches the repo remote from HTTPS to SSH.
+sets the repo remote to fetch over HTTPS and push over SSH.
 
 ---
 

@@ -178,16 +178,12 @@ else
     skip "Include line already present"
 fi
 
-# ── 6. Switch dotfiles remote to SSH ──────────────────────────────────────────
-step "Switching dotfiles remote to SSH"
-SSH_REMOTE="git@github.com:niklashargarter/dotfiles.git"
-current_remote=$(git -C "$DOTFILES" remote get-url origin 2>/dev/null || true)
-if [[ "$current_remote" == "$SSH_REMOTE" ]]; then
-    skip "remote already set to SSH"
-else
-    git -C "$DOTFILES" remote set-url origin "$SSH_REMOTE"
-    info "Remote → $SSH_REMOTE"
-fi
+# ── 6. Dotfiles remote ────────────────────────────────────────────────────────
+# Fetch over HTTPS, push over SSH: the repo is public and keys have a passphrase,
+# so agents can pull with no key and only a push needs the human.
+step "Setting dotfiles remote URLs"
+git -C "$DOTFILES" remote set-url origin https://github.com/niklashargarter/dotfiles.git
+git -C "$DOTFILES" remote set-url --push origin git@github.com:niklashargarter/dotfiles.git
 
 # ── Done ───────────────────────────────────────────────────────────────────────
 echo ""
