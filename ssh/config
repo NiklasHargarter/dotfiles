@@ -29,6 +29,13 @@ Host mimir
     User hargarter
     IdentityFile ~/.ssh/id_ed25519_mimir
 
+# --- Optiplex ---
+# deploy: server
+Host optiplex
+    HostName 192.168.1.33
+    User optiplex
+    IdentityFile ~/.ssh/id_ed25519_optiplex
+
 # --- HS-Flensburg HPC (Slurm) ---
 # deploy: manual
 Host hpc3
