@@ -29,8 +29,9 @@ command for the user to run in a second terminal, wait, then verify.
 | Other SSH hosts | key exists at the host's `IdentityFile` | `./scripts/setup-ssh-keys.sh <host>`. Ask which of `ssh/config`'s hosts this machine needs; some need the VPN | `ssh -o BatchMode=yes <host> true` |
 | VPN, if this machine needs it | `~/.vpn-creds` exists | `cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds`, then edit it | file exists, mode 600; don't read it |
 
-SSH keys have a passphrase, so `git push` is the user's to run; `git pull` uses
-HTTPS and needs no key.
+SSH keys have a passphrase. On macOS Keychain keeps it after the first unlock,
+so `git push` works from then on; before that it is the user's to run. `git pull`
+uses HTTPS and needs no key.
 
 Secrets never enter this conversation: don't ask for them, and don't read
 `~/.vpn-creds`, `~/.vpn-cert.pem` or private keys.

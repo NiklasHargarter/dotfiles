@@ -133,6 +133,9 @@ Host slifer
 ./scripts/setup-ssh-keys.sh slifer    # just one
 ```
 
+You type a key's passphrase once; the agent keeps the key, and on macOS Keychain
+remembers the passphrase (`Host *` block in `ssh/config`).
+
 - `server` — generates the key and `ssh-copy-id`s it to the host (you have
   password/SSH access already).
 - `manual` — generates the key and copies the pubkey to your clipboard to paste

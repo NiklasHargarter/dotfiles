@@ -36,6 +36,13 @@ Host optiplex
     User optiplex
     IdentityFile ~/.ssh/id_ed25519_optiplex
 
+# --- QIDI Plus 4 (printer) ---
+# deploy: server
+Host qidi
+    HostName 192.168.1.156
+    User mks
+    IdentityFile ~/.ssh/id_ed25519_qidi
+
 # --- HS-Flensburg HPC (Slurm) ---
 # deploy: manual
 Host hpc3
@@ -57,3 +64,11 @@ Host gitlab.hs-flensburg.de
     Port 2222
     User git
     IdentityFile ~/.ssh/id_ed25519_gitlab_hs-fl
+
+# Keep keys in the agent after the first unlock; on macOS also remember the
+# passphrase in Keychain. Ghostty's ssh wrapper opens two connections per ssh
+# (terminfo install, then the session), so without this each one prompts.
+Host *
+    AddKeysToAgent yes
+    IgnoreUnknown UseKeychain
+    UseKeychain yes
