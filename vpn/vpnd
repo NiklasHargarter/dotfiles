@@ -1,0 +1,61 @@
+#!/bin/bash
+# Root daemon behind vpnup/vpndown on macOS (launchd, installed by setup.sh).
+# Keeps openconnect up while ~/.vpn-on exists, and redials when the underlying
+# network changes: vpnc-script pins the gateway route to the router of the
+# network it connected on, so a tunnel carried across sleep onto another
+# Wi-Fi can't reconnect and blackholes all traffic.
+home=$1
+log=/var/log/vpnd.log  # same path as vpnd.plist
+# launchd's PATH lacks Homebrew.
+PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+
+say() { echo "$(date '+%F %T') $*"; }
+
+# Interface + router of each physical network service. Skip utun*: the tunnel
+# registers itself as a service and takes over the global primary.
+net() {
+  scutil <<< 'list State:/Network/Service/[^/]+/IPv4' | awk '{print $4}' | grep -v /utun |
+    while read -r k; do scutil <<< "show $k" | awk '/^  (InterfaceName|Router) /{printf "%s ", $3}'; done
+}
+
+# vpnc-script's teardown can't delete its gateway host route once the old
+# router is gone, and the leftover blocks every later connect.
+unpin() {
+  local host ip; read -r host < "$home/.vpn-creds"
+  for ip in $(dscacheutil -q host -a name "$host" | awk '/^ip_address/{print $2}'); do
+    route -n delete -host "$ip" >/dev/null 2>&1
+  done
+}
+
+started=
+while :; do
+  cur=$(net)
+  if pgrep -qx openconnect; then
+    if [[ ! -e $home/.vpn-on || $cur != "$started" ]]; then
+      say "disconnect${cur:+ (network: $cur)}"
+      pkill -INT -x openconnect
+      while pgrep -qx openconnect; do sleep 1; done
+      unpin
+    fi
+  elif [[ -e $home/.vpn-on && -n $cur ]]; then
+    (( $(stat -f%z "$log") > 1000000 )) && : > "$log"
+    { read -r host; read -r user; read -r pw; read -r group; } < "$home/.vpn-creds"
+    cert=(); [[ -r $home/.vpn-cert.pem ]] && cert=(-c "$home/.vpn-cert.pem")
+    say "connect (network: $cur)"
+    started=$cur
+    unpin
+    from=$(stat -f%z "$log")
+    # --reconnect-timeout: after a wake, give up on a dead tunnel in a minute
+    # (then we redial) instead of blackholing traffic for openconnect's 5.
+    if ! printf '%s\n' "$pw" | openconnect -b --reconnect-timeout=60 "${cert[@]}" \
+        --user="$user" --authgroup="$group" --passwd-on-stdin "$host"; then
+      # Retrying rejected creds risks an account lockout: stop instead.
+      if tail -c +$((from + 1)) "$log" | grep -qE 'Login failed|Certificate Validation Failure'; then
+        say "login rejected; VPN off. Check ~/.vpn-creds / ~/.vpn-cert.pem, then vpnup"
+        rm -f "$home/.vpn-on"
+      fi
+      sleep 30
+    fi
+  fi
+  sleep 5
+done

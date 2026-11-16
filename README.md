@@ -186,7 +186,10 @@ belong in that project's `CLAUDE.md`, which the skill reads.
 
 ### VPN (OpenConnect)
 
-Aliases load only if `openconnect` is installed. Connecting needs `sudo`.
+On macOS a root launchd daemon (`vpn/vpnd`, installed by `setup.sh`) holds the
+connection: it stays up while `~/.vpn-on` exists and redials whenever the
+network changes (sleep at home, wake on eduroam). No `sudo` per connect. On
+Linux the aliases call `sudo openconnect` directly.
 
 ```bash
 cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds
@@ -214,9 +217,10 @@ rm /tmp/vpn.p12
 
 | Alias | Action |
 |---|---|
-| `vpnup` | connect in the background with saved creds |
+| `vpnup` | connect with saved creds; on macOS, stay connected across networks |
 | `vpndown` | disconnect |
-| `vpnstat` | show the running connection |
+| `vpnstat` | one-line status: off, connecting, or connected since when and via which interface |
+| `vpnlog` | macOS: recent daemon and openconnect output, for debugging |
 
 ---
 

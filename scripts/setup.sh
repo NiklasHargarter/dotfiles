@@ -185,6 +185,27 @@ step "Setting dotfiles remote URLs"
 git -C "$DOTFILES" remote set-url origin https://github.com/niklashargarter/dotfiles.git
 git -C "$DOTFILES" remote set-url --push origin git@github.com:niklashargarter/dotfiles.git
 
+# ── 7. VPN daemon (macOS) ──────────────────────────────────────────────────────
+# Root runs a root-owned copy, not the repo file, so nothing user-writable runs
+# as root. sudo only when the installed copy or plist is out of date.
+if [[ "$OS" == "Darwin" ]]; then
+    step "Installing VPN daemon"
+    VPND=/usr/local/libexec/vpnd PLIST=/Library/LaunchDaemons/local.vpnd.plist
+    want="$(sed "s|@HOME@|$HOME|" "$DOTFILES/vpn/vpnd.plist")"
+    if cmp -s "$DOTFILES/vpn/vpnd" "$VPND" && [[ "$(cat "$PLIST" 2>/dev/null)" == "$want" ]]; then
+        skip "up to date"
+    elif [[ -t 0 ]]; then
+        sudo install -d /usr/local/libexec
+        sudo install -m 755 -o root -g wheel "$DOTFILES/vpn/vpnd" "$VPND"
+        printf '%s\n' "$want" | sudo tee "$PLIST" >/dev/null
+        sudo launchctl bootout system "$PLIST" 2>/dev/null || true
+        sudo launchctl bootstrap system "$PLIST"
+        info "installed and (re)started"
+    else
+        info "needs sudo — run ./scripts/setup.sh in a terminal"
+    fi
+fi
+
 # ── Done ───────────────────────────────────────────────────────────────────────
 echo ""
 echo "=============================="

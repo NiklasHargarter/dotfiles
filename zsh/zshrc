@@ -45,7 +45,20 @@ focus() { _read_doc FOCUS.md "$1"; }
 tools() { _read_doc TOOLS.md "$1"; }
 
 # VPN via openconnect (speaks Cisco AnyConnect). ~/.vpn-creds: host, user, password, group.
-if command -v openconnect >/dev/null; then
+if [[ $OSTYPE == darwin* ]]; then
+  # vpn/vpnd keeps the tunnel up while ~/.vpn-on exists, redialing on network change.
+  alias vpnup='touch ~/.vpn-on' vpndown='rm -f ~/.vpn-on'
+  alias vpnlog='tail -n 30 /var/log/vpnd.log'
+  vpnstat() {
+    local log=/var/log/vpnd.log
+    local last=$(grep -E '^[0-9-]+ [0-9:]+ connect' $log | tail -n 1)
+    # Latest problem since the last connect attempt, if any.
+    local err=$(awk '/^[0-9-]+ [0-9:]+ connect/{e=""} /[Ff]ailed|rejected/{e=$0} END{print e}' $log)
+    if pgrep -qx openconnect; then echo "VPN connected since ${${last#* }%% *} (via ${${last#*network: }%% *})"
+    elif [[ -e ~/.vpn-on ]]; then echo "VPN connecting…${err:+ last error: $err}"
+    else echo "VPN off${err:+ — $err}"; fi
+  }
+elif command -v openconnect >/dev/null; then
   vpnup() {
     local host user pw group
     { read -r host; read -r user; read -r pw; read -r group; } < ~/.vpn-creds
