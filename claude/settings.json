@@ -6,5 +6,7 @@
   },
   "effortLevel": "high",
   "tui": "fullscreen",
-  "switchModelsOnFlag": false
+  "autoCompactEnabled": false,
+  "switchModelsOnFlag": false,
+  "idleCompaction": false
 }
