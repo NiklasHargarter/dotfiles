@@ -45,24 +45,13 @@ if [[ "$OS" == "Darwin" ]]; then
     fi
     brew install bash shellcheck eza ripgrep curl git fzf fd neovim node zellij bat jq btop zoxide tree-sitter ncdu gh openconnect
 elif [[ "$OS" == "Linux" ]]; then
-    # nvim: python3-venv (mason PyPI pkgs, e.g. ruff), build-essential
-    #       (treesitter + telescope-fzf-native compile from C)
-    # Not from apt: neovim (0.9, too old for this config), nodejs (ancient) —
-    # tarball + NodeSource below.
-    pkgs=(zsh shellcheck eza ripgrep curl git fzf fd-find python3 python3-venv
-        bat jq btop zoxide ncdu gh build-essential openconnect)
+    # Headless boxes: shell + CLI basics only. nvim and openconnect are mac-only.
+    pkgs=(zsh shellcheck eza ripgrep curl git fzf fd-find python3
+        bat jq btop zoxide ncdu gh)
     # Only touch sudo when something is missing, so updates run without a TTY.
     if ! dpkg -s "${pkgs[@]}" >/dev/null 2>&1; then
         sudo apt-get update -qq
         sudo apt-get install -y "${pkgs[@]}"
-    fi
-
-    # Modern Node LTS via NodeSource (apt-managed, stays current on upgrade)
-    if ! command -v node >/dev/null; then
-        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-        sudo apt-get install -y nodejs
-    else
-        skip "node already installed ($(node --version))"
     fi
 
     if ! command -v zellij >/dev/null; then
@@ -74,24 +63,6 @@ elif [[ "$OS" == "Linux" ]]; then
     else
         skip "zellij already installed"
     fi
-
-    # Latest Neovim from the official prebuilt tarball (apt's is years behind).
-    mkdir -p ~/.local/bin
-    curl -fsSLo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-    rm -rf ~/.local/nvim && mkdir -p ~/.local/nvim
-    tar -xf /tmp/nvim.tar.gz -C ~/.local/nvim --strip-components=1
-    ln -sfn ~/.local/nvim/bin/nvim ~/.local/bin/nvim
-    rm /tmp/nvim.tar.gz
-
-    # tree-sitter CLI — nvim-treesitter's `main` branch compiles every parser by
-    # shelling out to `tree-sitter build`, a subcommand that only exists in CLI
-    # 0.22+. Ubuntu ships `tree-sitter-cli` 0.20.8, which has only `build-wasm`,
-    # so an apt copy on PATH fails every parser. Deliberately NOT guarded on
-    # `command -v`: the failure mode is a *stale* binary being present, so a
-    # presence check would skip exactly the machines that need this.
-    curl -fsSL https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-x64.gz \
-        | gunzip > ~/.local/bin/tree-sitter
-    chmod +x ~/.local/bin/tree-sitter
 fi
 
 # ── 1b. Sweep stale links ──────────────────────────────────────────────────────

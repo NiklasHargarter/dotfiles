@@ -58,14 +58,6 @@ if [[ $OSTYPE == darwin* ]]; then
     elif [[ -e ~/.vpn-on ]]; then echo "VPN connecting…${err:+ last error: $err}"
     else echo "VPN off${err:+ — $err}"; fi
   }
-elif command -v openconnect >/dev/null; then
-  vpnup() {
-    local host user pw group
-    { read -r host; read -r user; read -r pw; read -r group; } < ~/.vpn-creds
-    local cert=(); [[ -r ~/.vpn-cert.pem ]] && cert=(-c ~/.vpn-cert.pem)
-    printf '%s\n' "$pw" | sudo openconnect -b "${cert[@]}" --user="$user" --authgroup="$group" --passwd-on-stdin "$host"
-  }
-  alias vpndown='sudo pkill -INT openconnect' vpnstat='pgrep -lf openconnect'
 fi
 
 if command -v zellij >/dev/null; then

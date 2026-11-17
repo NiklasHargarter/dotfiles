@@ -177,8 +177,8 @@ no network. Keep context under ~60% for best results.
 
 On macOS a root launchd daemon (`vpn/vpnd`, installed by `setup.sh`) holds the
 connection: it stays up while `~/.vpn-on` exists and redials whenever the
-network changes (sleep at home, wake on eduroam). No `sudo` per connect. On
-Linux the aliases call `sudo openconnect` directly.
+network changes (sleep at home, wake on eduroam). No `sudo` per connect.
+macOS only; Linux boxes don't get openconnect.
 
 ```bash
 cp vpn/creds.template ~/.vpn-creds && chmod 600 ~/.vpn-creds
@@ -226,7 +226,7 @@ it's `git pull && ./scripts/setup.sh && exec zsh`.
 | New alias / shell tweak | edit `zsh/zshrc` |
 | New app config | drop the file in a folder, add a `link` line in `scripts/setup.sh`, re-run it |
 | New SSH host | add a `Host` block + `# deploy:` marker to `ssh/config`, run `setup-ssh-keys.sh <host>` |
-| Node on a dev box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: **mac** `brew install node` · **linux** `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
+| Node on a Linux box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
 | New step that needs a human | add it to the table in `CLAUDE.md` |
 | Machine-specific bits | `~/.zshrc.local` — sourced if present, not in the repo |
 

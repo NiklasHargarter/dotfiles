@@ -108,11 +108,11 @@ in-editor chat later, install `olimorris/codecompanion.nvim` as a new file in
 
 ## Prerequisites
 
-- **Neovim ≥ 0.11** (uses the native `vim.lsp.config` API). `setup.sh` installs a
-  current build on both macOS (brew) and Linux (official tarball).
+- **Neovim ≥ 0.11** (uses the native `vim.lsp.config` API). `setup.sh` installs it
+  on macOS (brew) only; Linux boxes get plain `vim`.
 - **A C compiler + make** — treesitter and telescope-fzf-native compile on
   install. macOS: Xcode Command Line Tools (`xcode-select --install`). Linux:
-  `build-essential` (installed by `setup.sh`).
+  `build-essential`.
 - **ripgrep** for `live_grep`, **fd** for fast file finding — both already in the
   dotfiles package list.
 
