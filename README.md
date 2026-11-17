@@ -165,24 +165,13 @@ falls back to `xterm-256color` on machines you don't. Nothing to run per host.
 
 ### Claude Code
 
-- `claude/CLAUDE.md` → `~/.claude/CLAUDE.md`: global style rules (terse, minimal diffs).
-  No plugins — current models don't need them; add back in `settings.json` if one earns it.
-- Statusline shows repo · branch · git counts · context-window %:
-  ```
-  dotfiles | main | S:0 U:2 A:1 | ctx 24% · 48k/200k
-  ```
-  Computed locally from the session transcript (`claude/statusline-context.py`) —
-  no network. Keep context under ~60% for best results.
-
-Machine-independent:
-
-- **Own skills** live in `claude/skills/`, dir-linked to `~/.claude/skills`. A new
-  skill is live after `git pull`, no relink. Available in every project, not one repo.
-  `claude/skills/synced/` is claude.ai's own sync target — gitignored.
-
-A skill is one dir with a `SKILL.md` (frontmatter `name` + `description`; the
-description is what makes Claude reach for it). Keep it generic — project specifics
-belong in that project's `CLAUDE.md`, which the skill reads.
+Only the statusline is tracked; everything else is Claude Code's defaults.
+`claude/settings.json` holds just the `statusLine` entry:
+```
+dotfiles | main | S:0 U:2 A:1 | ctx 24% · 48k/200k
+```
+Computed locally from the session transcript (`claude/statusline-context.py`) —
+no network. Keep context under ~60% for best results.
 
 ### VPN (OpenConnect)
 
@@ -236,7 +225,6 @@ it's `git pull && ./scripts/setup.sh && exec zsh`.
 |---|---|
 | New alias / shell tweak | edit `zsh/zshrc` |
 | New app config | drop the file in a folder, add a `link` line in `scripts/setup.sh`, re-run it |
-| New Claude skill | `claude/skills/<name>/SKILL.md` — no `link` line, the dir is already linked |
 | New SSH host | add a `Host` block + `# deploy:` marker to `ssh/config`, run `setup-ssh-keys.sh <host>` |
 | Node on a dev box | not in the baseline (apt's is stale, Claude doesn't need it). Where you need it: **mac** `brew install node` · **linux** `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt-get install -y nodejs` |
 | New step that needs a human | add it to the table in `CLAUDE.md` |

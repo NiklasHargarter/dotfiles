@@ -129,8 +129,6 @@ link zsh/p10k.zsh                 ~/.p10k.zsh
 link git/gitconfig                ~/.gitconfig
 link ssh/config                   ~/.config/ssh/config
 link claude/settings.json         ~/.claude/settings.json
-link claude/CLAUDE.md             ~/.claude/CLAUDE.md
-link claude/skills                ~/.claude/skills
 link claude/statusline-command.sh ~/.claude/statusline-command.sh
 link claude/statusline-context.py ~/.claude/statusline-context.py
 link claude/statusline-wrapper.sh ~/.claude/statusline-wrapper.sh
